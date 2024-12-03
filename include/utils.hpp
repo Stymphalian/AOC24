@@ -2,6 +2,21 @@
 
 #include <vector>
 #include <string>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <cmath>
+#include <tuple>
+#include <unordered_map>
+#include <set>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+using namespace std;
 
 namespace Utils
 {
@@ -41,8 +56,10 @@ namespace Utils
         printf("\n");
     }
 
-    int sign(int num) { return num > 0 ? 1 : -1;}
-    template <typename T> int signum(T val) {
+    int sign(int num) { return num > 0 ? 1 : -1; }
+    template <typename T>
+    int signum(T val)
+    {
         return (T(0) < val) - (val < T(0));
     }
 };

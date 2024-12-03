@@ -1,18 +1,6 @@
 #pragma once
 
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <random>
-#include <cmath>
-#include <tuple>
-#include <unordered_map>
 #include "utils.hpp"
-
-using namespace std;
 
 class Day2
 {
@@ -26,7 +14,9 @@ public:
 
     void ReadInput(bool readTest = false)
     {
-        std::ifstream file(readTest ? "res/day2/test.txt" : "res/day2/input.txt");
+        std::ifstream file(readTest
+                               ? "res/day2/test2.txt"
+                               : "res/day2/input.txt");
 
         if (file.is_open() == false)
         {
@@ -50,7 +40,6 @@ public:
         file.close();
     }
 
-    // 236
     void part1()
     {
         int unsafe_report_count = 0;
@@ -68,10 +57,10 @@ public:
 
     int sign(int num) { return num > 0 ? 1 : -1; }
 
-    bool isSafeReport(Report_t &report, int skipIndex = -1)
+    bool isSafeReport(Report_t &report, int skipIndex = -1, bool allowSkip = false)
     {
         int gradient = 0;
-
+        int gradient_index = 0;
         int prev_index = 0;
         int next_index = 1;
         if (skipIndex == 0)
@@ -111,10 +100,20 @@ public:
             else
             {
                 gradient = grad;
+                gradient_index = prev_index;
             }
 
             if (errors >= 1)
             {
+                if (allowSkip)
+                {
+                    if (isSafeReport(report, prev_index, false) ||
+                        isSafeReport(report, next_index, false) ||
+                        isSafeReport(report, gradient_index, false))
+                    {
+                        return true;
+                    }
+                }
                 return false;
             }
 
@@ -134,39 +133,23 @@ public:
 
     void part2()
     {
-        int unsafe_report_count = 0;
+        int safe_count = 0;
         for (int i = 0; i < _reports.size(); i++)
         {
             Report_t &report = _reports[i];
-
-            if (!isSafeReport(report))
+            if (isSafeReport(report, -1, true))
             {
-                bool is_safe = false;
-                for (int j = 0; j < report.size(); j++)
-                {
-                    if (isSafeReport(report, j))
-                    {
-                        printf("Removing index: %d, ", j);
-                        Utils::printIntVector(report);
-                        is_safe = true;
-                        break;
-                    }
-                }
-                if (!is_safe)
-                {
-                    unsafe_report_count += 1;
-                }
+                safe_count += 1;
             }
         }
-
-        printf("Number of Safe Reports: %d\n", (int)_reports.size() - unsafe_report_count);
+        printf("Number of Safe Reports: %d\n", safe_count);
     }
 
     void Run(bool readTestData = false)
     {
-        ReadInput(false);
-        // part1();
-        part2();
         printf("Day 2\n");
+        ReadInput(false);
+        // part1(); // 236
+        part2(); // 308
     }
 };
