@@ -9,6 +9,7 @@
 #include <random>
 #include <cmath>
 #include <tuple>
+#include <unordered_map>
 
 class Day1
 {
@@ -302,6 +303,18 @@ public:
         // Answer: 1579939
         // My sort: 1579939
         printf("Cumulative distance: %d\n", cumulativeDistance);
+
+        std::unordered_map<int, int> freq;
+        for (int i = 0; i < a2.size(); i++) {
+            freq[a2[i]] += 1;
+        }
+
+        int score = 0;
+        for (int i = 0; i < a1.size(); i++) {
+            score += a1[i] * freq[a1[i]];
+        }
+        // Answer: 20351745
+        printf("Similarity Score: %d\n", score);
         printf("Day 1\n");
     }
 };
