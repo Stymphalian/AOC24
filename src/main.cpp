@@ -2,6 +2,7 @@
 
 #include "day1.hpp"
 #include "day2.hpp"
+#include "day3.hpp"
 
 int main(int argc, char** argv) {
     bool readTestData = false;
@@ -10,7 +11,7 @@ int main(int argc, char** argv) {
     }
 
     printf("Advent Of Code 2024\n");
-    Day2 day;
+    Day3 day;
     day.Run(readTestData);
     return 0;
 }
