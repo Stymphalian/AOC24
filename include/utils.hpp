@@ -51,13 +51,47 @@ namespace Utils
         return tokens;
     }
 
-    void printIntVector(std::vector<int> &a)
+    void PrintIntVector(std::vector<int> &a)
     {
         for (int i = 0; i < a.size(); i++)
         {
             printf("%d ", a[i]);
         }
         printf("\n");
+    }
+
+    void PrintIntSet(std::set<int> &a)
+    {
+        for (auto it = a.begin(); it != a.end(); it++)
+        {
+            printf("%d ", *it);
+        }
+        printf("\n");
+    }
+
+    void PrintIntMap(std::unordered_map<int, int> &a)
+    {
+        for (auto it = a.begin(); it != a.end(); it++)
+        {
+            printf("%d: %d\n", it->first, it->second);
+        }
+    }
+
+    void PrintIntMapSet(std::unordered_map<int, std::set<int>> &a)
+    {
+        for (auto it = a.begin(); it != a.end(); it++)
+        {
+            printf("%d: ", it->first);
+            PrintIntSet(it->second);
+        }
+    }
+
+    void PrintIntVector2D(std::vector<std::vector<int>> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            PrintIntVector(a[i]);
+        }
     }
 
     int sign(int num) { return num > 0 ? 1 : -1; }
