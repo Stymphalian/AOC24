@@ -145,7 +145,12 @@ namespace Utils
         return s;
     }
 
-    bool InRange(glm::ivec2 vec, int width, int height) {
+    bool InRange(glm::ivec2 vec, int width, int height)
+    {
         return vec.x >= 0 && vec.x < width && vec.y >= 0 && vec.y < height;
+    }
+    bool InRange(int x, int y, int width, int height)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 };

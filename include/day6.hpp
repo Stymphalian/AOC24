@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils.hpp"
-#include <tuple>
+
 
 class Day6
 {
@@ -234,7 +234,6 @@ public:
             if (has_cycle(Path(_start, _start_dir))) {
                 printf("Cycle at %s\n", glm::to_string(pos).c_str());
                 cycles.insert(Path(pos, DIR::UP));
-                // cycle_count += 1;
             }
             _grid[pos.y][pos.x] = 0;
 
