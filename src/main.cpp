@@ -5,8 +5,10 @@
 #include "day3.hpp"
 #include "day4.hpp"
 #include "day5.hpp"
+#include "day6.hpp"
 
 
+// https://adventofcode.com/2024
 // https://adventofcode.com/2024/leaderboard/self
 int main(int argc, char** argv) {
     bool readTestData = false;
@@ -15,7 +17,7 @@ int main(int argc, char** argv) {
     }
 
     printf("Advent Of Code 2024\n");
-    Day5 day;
+    Day6 day;
     day.Run(readTestData);
     return 0;
 }
