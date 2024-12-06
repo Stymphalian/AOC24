@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <chrono>
 
 #include "day1.hpp"
 #include "day2.hpp"
@@ -26,6 +27,8 @@
 #include "day24.hpp"
 #include "day25.hpp"
 
+using namespace std;
+
 // https://adventofcode.com/2024
 // https://adventofcode.com/2024/leaderboard/self
 int main(int argc, char** argv) {
@@ -36,6 +39,11 @@ int main(int argc, char** argv) {
 
     printf("Advent Of Code 2024\n");
     Day6 day;
+
+    auto start = chrono::system_clock::now();
     day.Run(readTestData);
+    auto end = chrono::system_clock::now();
+    auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
+    printf("Elapsed: %lld ms\n", elapsed.count());
     return 0;
 }

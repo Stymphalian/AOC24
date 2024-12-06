@@ -97,6 +97,7 @@
         "stack": "cpp",
         "variant": "cpp",
         "codecvt": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "cassert": "cpp"
     }
 }
