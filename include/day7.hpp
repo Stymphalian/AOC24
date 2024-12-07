@@ -50,10 +50,37 @@ public:
             return valid2(nums[0], 1);
         }
 
+        // right most digit is first
+        int getDigits(int64_t num, int* digits) {
+            int index = 0;
+            while (num > 0) {
+                int64_t digit = (num % 10);
+                digits[index++] = (int)digit;
+                num /= 10;
+            }
+            return index;
+        }
+
         int64_t concat(int64_t a, int64_t b) {
-            std::string s1 = std::to_string(a);
-            std::string s2 = std::to_string(b);
-            return std::stoll(s1 + s2);
+            int da[21] = {0};
+            int db[21] = {0};
+            int da_size = getDigits(a, &da[0]);
+            int db_size = getDigits(b, &db[0]);
+            int64_t num = 0;
+            int64_t scale = 1;
+            for (int i = 0; i < db_size; i++) {
+                num += (int64_t) db[i] * scale;
+                scale *= 10;
+            }
+            for (int i = 0; i < da_size; i++) {
+                num += (int64_t) da[i] * scale;
+                scale *= 10;
+            }
+            return num;
+
+            // std::string s1 = std::to_string(a);
+            // std::string s2 = std::to_string(b);
+            // return std::stoll(s1 + s2);
         }
 
         void Print() {
@@ -100,15 +127,15 @@ public:
             equations.push_back({test_value, nums_ints});
         }
 
-        for (auto &eq : equations)
-        {
-            std::cout << eq.test_value << ": ";
-            for (auto &n : eq.nums)
-            {
-                std::cout << n << " ";
-            }
-            std::cout << std::endl;
-        }
+        // for (auto &eq : equations)
+        // {
+        //     std::cout << eq.test_value << ": ";
+        //     for (auto &n : eq.nums)
+        //     {
+        //         std::cout << n << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
 
         file.close();
     }
@@ -119,7 +146,6 @@ public:
         for (Equation &eq : equations)
         {
             if (eq.isValid()) {
-                eq.Print();
                 total += eq.test_value;
             }
         }
@@ -132,7 +158,6 @@ public:
         for (Equation &eq : equations)
         {
             if (eq.isValid2()) {
-                eq.Print();
                 total += eq.test_value;
             }
         }
@@ -144,7 +169,10 @@ public:
     {
         bool readTest = false;
         ReadInput(readTest);
-        // part1(); // 975671981569, test(3749)
-        part2(); // test(11387),
+        // part1(); // test(3749), 975671981569
+        part2(); // test(11387), 223472064194845
+
+        // first: 4709ms
+        // optimized: 366ms (calculate digits by hand instead of string conversion)
     }
 };
