@@ -38,10 +38,10 @@ int main(int argc, char** argv) {
     }
 
     printf("Advent Of Code 2024\n");
-    Day6 day;
+    Day7 day;
 
     auto start = chrono::system_clock::now();
-    day.Run(readTestData);
+    day.Run();
     auto end = chrono::system_clock::now();
     auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
     printf("Elapsed: %lld ms\n", elapsed.count());

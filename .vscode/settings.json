@@ -98,6 +98,13 @@
         "variant": "cpp",
         "codecvt": "cpp",
         "filesystem": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "cfenv": "cpp",
+        "csignal": "cpp",
+        "resumable": "cpp",
+        "future": "cpp",
+        "scoped_allocator": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp"
     }
 }
