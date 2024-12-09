@@ -53,13 +53,69 @@ namespace Utils
         return tokens;
     }
 
+    template <typename T>
+    void PrintVector(std::vector<T> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << a[i] << " ";
+        }
+        cout << endl;
+    }
+
+    template <typename T>
+    void PrintVectorStruct(std::vector<T> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            a[i].Print();
+        }
+        cout << endl;
+    }
+
     void PrintIntVector(std::vector<int> &a)
     {
         for (int i = 0; i < a.size(); i++)
         {
-            printf("%d ", a[i]);
+            cout << a[i] << " ";
         }
-        printf("\n");
+        cout << endl;
+    }
+
+    void PrintVector(std::vector<glm::vec2> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << "(" << a[i].x << "," << a[i].y << ") ";
+        }
+        cout << endl;
+    }
+
+    void PrintVector(std::vector<glm::ivec2> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << "(" << a[i].x << "," << a[i].y << ") ";
+        }
+        cout << endl;
+    }
+
+    void PrintVector(std::vector<glm::vec3> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
+        }
+        cout << endl;
+    }
+
+    void PrintVector(std::vector<glm::ivec3> &a)
+    {
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
+        }
+        cout << endl;
     }
 
     void PrintIntSet(std::set<int> &a)
