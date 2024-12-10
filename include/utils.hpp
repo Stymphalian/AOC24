@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <queue>
 #include <algorithm>
 #include <random>
 #include <cmath>
@@ -30,7 +31,6 @@ using namespace std;
 
 namespace Utils
 {
-
     // struct IVec2Hash
     // {
     //     std::size_t operator()(const glm::ivec2 &v) const
@@ -50,19 +50,20 @@ namespace Utils
     using GridInt = std::vector<std::vector<int>>;
     using GridVec2 = std::vector<std::vector<glm::ivec2>>;
     using ListVec2 = std::vector<glm::ivec2>;
-    using ListVec3 = std::vector<glm::ivec3>;
+    using QueueInt = std::queue<int>;
+    using QueueVec2 = std::queue<glm::ivec2>;
     using MapIntInt = std::unordered_map<int, int>;
+    using MapIntBool = std::unordered_map<int, bool>;
     using MapVec2Bool = std::unordered_map<glm::ivec2, bool>;
     using MapVec2Int = std::unordered_map<glm::ivec2, int>;
     using SetVec2 = std::unordered_set<glm::ivec2>;
 
-    using BFS_Grid_CurrentCallback = std::function<void(glm::ivec2 pos)>;
-    using BFS_Grid_ChildrenCallback = std::function<void(ListVec2 &stack, glm::ivec2 pos)>;
+    using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
+    using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
-    void bfs(
+    void dfs(
         glm::ivec2 start,
-        BFS_Grid_CurrentCallback currentCallback,
-        BFS_Grid_ChildrenCallback addChildrenCallback)
+        DFS_Grid_CurrentCallback currentCallback)
     {
         SetVec2 visited;
         ListVec2 stack;
@@ -71,15 +72,36 @@ namespace Utils
         {
             glm::ivec2 current = stack.back();
             stack.pop_back();
-            currentCallback(current);
-
             if (visited.find(current) != visited.end())
             {
                 continue;
             }
-            visited.insert(current);
+            if (currentCallback(stack, current)){}
+            {
+                visited.insert(current);
+            }
+        }
+    }
 
-            addChildrenCallback(stack, current);
+    void bfs(
+        glm::ivec2 start,
+        BFS_Grid_CurrentCallback currentCallback)
+    {
+        SetVec2 visited;
+        QueueVec2 queue;
+        queue.push(start);
+        while (queue.size() > 0)
+        {
+            glm::ivec2 current = queue.front();
+            queue.pop();
+            if (visited.find(current) != visited.end())
+            {
+                continue;
+            }
+            if (currentCallback(queue, current))
+            {
+                visited.insert(current);
+            }
         }
     }
 
