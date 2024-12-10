@@ -1,5 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/hash.hpp>
+
 #include <vector>
 #include <string>
 #include <cstdio>
@@ -13,19 +18,71 @@
 #include <tuple>
 #include <unordered_map>
 #include <set>
+#include <unordered_set>
 #include <sstream>
 #include <optional>
 #include <cctype>
 #include <locale>
 #include <cassert>
 #include <chrono>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
+
 using namespace std;
 
 namespace Utils
 {
+
+    // struct IVec2Hash
+    // {
+    //     std::size_t operator()(const glm::ivec2 &v) const
+    //     {
+    //         return std::hash<int>{}(v.x) ^ (std::hash<int>{}(v.y) << 1);
+    //     }
+    // };
+
+    // struct IVec2Equals
+    // {
+    //     bool operator()(const glm::ivec2 &a, const glm::vec2 &b) const
+    //     {
+    //         return a.x == b.x && a.y == b.y;
+    //     }
+    // };
+
+    using GridInt = std::vector<std::vector<int>>;
+    using GridVec2 = std::vector<std::vector<glm::ivec2>>;
+    using ListVec2 = std::vector<glm::ivec2>;
+    using ListVec3 = std::vector<glm::ivec3>;
+    using MapIntInt = std::unordered_map<int, int>;
+    using MapVec2Bool = std::unordered_map<glm::ivec2, bool>;
+    using MapVec2Int = std::unordered_map<glm::ivec2, int>;
+    using SetVec2 = std::unordered_set<glm::ivec2>;
+
+    using BFS_Grid_CurrentCallback = std::function<void(glm::ivec2 pos)>;
+    using BFS_Grid_ChildrenCallback = std::function<void(ListVec2 &stack, glm::ivec2 pos)>;
+
+    void bfs(
+        glm::ivec2 start,
+        BFS_Grid_CurrentCallback currentCallback,
+        BFS_Grid_ChildrenCallback addChildrenCallback)
+    {
+        SetVec2 visited;
+        ListVec2 stack;
+        stack.push_back(start);
+        while (stack.size() > 0)
+        {
+            glm::ivec2 current = stack.back();
+            stack.pop_back();
+            currentCallback(current);
+
+            if (visited.find(current) != visited.end())
+            {
+                continue;
+            }
+            visited.insert(current);
+
+            addChildrenCallback(stack, current);
+        }
+    }
+
     std::vector<std::string> split(const std::string &s, const std::string &delimiter)
     {
         std::vector<std::string> tokens;
