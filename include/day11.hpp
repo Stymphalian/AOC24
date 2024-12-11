@@ -141,7 +141,6 @@ public:
 
     void part2()
     {
-
         vector<uint64_t> nums;
         for (auto n : _nums)
         {

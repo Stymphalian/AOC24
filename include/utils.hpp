@@ -32,35 +32,48 @@ using namespace std;
 
 namespace Utils
 {
-    // struct IVec2Hash
-    // {
-    //     std::size_t operator()(const glm::ivec2 &v) const
-    //     {
-    //         return std::hash<int>{}(v.x) ^ (std::hash<int>{}(v.y) << 1);
-    //     }
-    // };
-
-    // struct IVec2Equals
-    // {
-    //     bool operator()(const glm::ivec2 &a, const glm::vec2 &b) const
-    //     {
-    //         return a.x == b.x && a.y == b.y;
-    //     }
-    // };
 
     using GridInt = std::vector<std::vector<int>>;
     using GridVec2 = std::vector<std::vector<glm::ivec2>>;
     using ListVec2 = std::vector<glm::ivec2>;
     using QueueInt = std::queue<int>;
+    using StackInt = std::vector<int>;
     using QueueVec2 = std::queue<glm::ivec2>;
     using MapIntInt = std::unordered_map<int, int>;
     using MapIntBool = std::unordered_map<int, bool>;
     using MapVec2Bool = std::unordered_map<glm::ivec2, bool>;
     using MapVec2Int = std::unordered_map<glm::ivec2, int>;
     using SetVec2 = std::unordered_set<glm::ivec2>;
-
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
+
+    // https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
+    template <typename T, typename... Rest>
+    void hash_combine(std::size_t &seed, const T &v, const Rest &...rest)
+    {
+        // magic numbers o.O
+        seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        // NOTE: This is c++17 fold expresison syntax.
+        (hash_combine(seed, rest), ...);
+    }
+
+    struct HashKeyExample
+    {
+        uint64_t num;
+        int blinks;
+
+        std::size_t operator()(const HashKeyExample &v) const
+        {
+            std::size_t h = 0;
+            hash_combine(h, v.num, v.blinks);
+            return h;
+        }
+
+        bool operator()(const HashKeyExample &a, const HashKeyExample &b) const
+        {
+            return a.num == b.num && a.blinks == b.blinks;
+        }
+    };
 
     void dfs(
         glm::ivec2 start,
@@ -77,7 +90,9 @@ namespace Utils
             {
                 continue;
             }
-            if (currentCallback(stack, current)){}
+            if (currentCallback(stack, current))
+            {
+            }
             {
                 visited.insert(current);
             }
