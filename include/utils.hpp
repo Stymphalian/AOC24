@@ -32,7 +32,6 @@ using namespace std;
 
 namespace Utils
 {
-
     using GridInt = std::vector<std::vector<int>>;
     using GridVec2 = std::vector<std::vector<glm::ivec2>>;
     using ListVec2 = std::vector<glm::ivec2>;
@@ -47,6 +46,21 @@ namespace Utils
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
+    std::vector<glm::ivec2> DIRS = {
+        glm::ivec2(1, 0),  // right
+        glm::ivec2(0, 1),  // down
+        glm::ivec2(-1, 0), // left
+        glm::ivec2(0, -1)  // up
+    };
+
+    inline int turnDirRight(int dir)
+    {
+        return (dir + 1) % 4;
+    }
+    inline int turnDirLeft(int dir)
+    {
+        return ((dir + 4) - 1) % 4;
+    }
 
     // https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
     template <typename T, typename... Rest>
@@ -297,6 +311,22 @@ namespace Utils
     {
         trim(s);
         return s;
+    }
+
+    template <typename T>
+    bool InRange(glm::vec2 vec, vector<vector<T>> &grid)
+    {
+        int height = (int) grid.size();
+        int width = (int) grid[0].size();
+        return vec.x >= 0 && vec.x < width && vec.y >= 0 && vec.y < height;
+    }
+
+    template <typename T>
+    bool InRange(int x, int y, vector<vector<T>> &grid)
+    {
+        int height = (int) grid.size();
+        int width = (int) grid[0].size();
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     bool InRange(glm::ivec2 vec, int width, int height)

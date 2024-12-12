@@ -3,15 +3,12 @@
 #include "utils.hpp"
 
 // Hard one.
+// Improvements
+// 1. Garden class
+// 2. Finding number of sides is the same as counting number of corners.
 class Day12
 {
 public:
-    // static const glm::ivec2 dirs[] = {
-    //     glm::ivec2(0, 1),  // down
-    //     glm::ivec2(0, -1), // up
-    //     glm::ivec2(1, 0),  // right
-    //     glm::ivec2(-1, 0)  // left
-    // };
     vector<vector<char>> _grid;
     int _num_rows = 0;
     int _num_cols = 0;
@@ -68,6 +65,16 @@ public:
         int _turn;
 
         Walk() = default;
+
+        Walk getInverse()
+        {
+            Walk other;
+            other.pos = pos;
+            other._forward = (_forward + 2) % 4;
+            other._outside = _outside;
+            other._turn = (_turn + 1) % 2;
+            return other;
+        }
 
         Walk(glm::ivec2 pos, int outside, int turn)
         {
@@ -157,45 +164,32 @@ public:
 
     struct Region
     {
-
-        std::vector<glm::ivec2> dirs = {
-            glm::ivec2(1, 0),  // right
-            glm::ivec2(0, 1),  // down
-            glm::ivec2(-1, 0), // left
-            glm::ivec2(0, -1)  // up
-        };
-        vector<glm::ivec2> pieces;
-        // vector<glm::ivec2> ppieces;
+        vector<glm::ivec2> perimiterLocations;
+        vector<glm::ivec2> tiles;
         int perimeter = 0;
         int area = 0;
 
-        void addPiece(glm::ivec2 piece, vector<vector<char>> &grid)
+        void addPiece(glm::ivec2 pos, vector<vector<char>> &grid)
         {
-            int p = calcPerim(piece, grid);
+            int p = calcPerim(pos, grid);
             if (p != 0)
             {
-                pieces.push_back(piece);
+                perimiterLocations.push_back(pos);
             }
             perimeter += p;
             area += 1;
-            // pieces.push_back(piece);
+            tiles.push_back(pos);
         }
 
-        int calcPerim(glm::ivec2 piece, vector<vector<char>> &grid)
+        int calcPerim(glm::ivec2 pos, vector<vector<char>> &grid)
         {
-            int num_rows = (int)grid.size();
-            int num_cols = (int)grid[0].size();
-            char c = grid[piece.y][piece.x];
-
-            int x = piece.x;
-            int y = piece.y;
-
+            char c = grid[pos.y][pos.x];
             int fences = 0;
             for (int i = 0; i < 4; i++)
             {
-                glm::ivec2 dir = dirs[i];
-                glm::ivec2 next = piece + dir;
-                if (!Utils::InRange(next, num_cols, num_rows))
+                glm::ivec2 dir = Utils::DIRS[i];
+                glm::ivec2 next = pos + dir;
+                if (!Utils::InRange(next, grid))
                 {
                     fences += 1;
                 }
@@ -204,22 +198,18 @@ public:
                     fences += 1;
                 }
             }
-
             return fences;
         }
 
         // right, down, left, up
         glm::ivec4 getNeighbors(glm::ivec2 piece, vector<vector<char>> &grid)
         {
-            int num_rows = (int)grid.size();
-            int num_cols = (int)grid[0].size();
             glm::ivec4 neighbors;
             char c = grid[piece.y][piece.x];
             for (int i = 0; i < 4; i++)
             {
-                glm::ivec2 dir = dirs[i];
-                glm::ivec2 next = piece + dir;
-                if (Utils::InRange(next, num_cols, num_rows))
+                glm::ivec2 next = piece + Utils::DIRS[i];
+                if (Utils::InRange(next, grid))
                 {
                     neighbors[i] = (grid[next.y][next.x] == c) ? 1 : 0;
                 }
@@ -230,6 +220,36 @@ public:
             }
 
             return neighbors;
+        }
+
+        bool contains(glm::ivec2 pos, glm::ivec2 dir, vector<vector<char>> &grid)
+        {
+            glm::ivec2 next = pos + dir;
+            return Utils::InRange(next, grid) && (grid[next.y][next.x] == grid[pos.y][pos.x]);
+        }
+
+        // https://github.com/kupuguy/aoc2024/blob/main/src/day12.py
+        int getSides(vector<vector<char>> &grid)
+        {
+            int sides = 0;
+
+            // count corners
+            for (int i = 0; i < tiles.size(); i++)
+            {
+                glm::ivec4 nb = getNeighbors(tiles[i], grid);
+                bool right = (nb[0] == 1);
+                bool down = (nb[1] == 1);
+                bool left = (nb[2] == 1);
+                bool up = (nb[3] == 1);
+
+                int tl = (!up && !left) || (up && left && !contains(tiles[i], glm::ivec2(-1, -1), grid));
+                int tr = (!up && !right) || (up && right && !contains(tiles[i], glm::ivec2(1, -1), grid));
+                int bl = (!down && !left) || (down && left && !contains(tiles[i], glm::ivec2(-1, 1), grid));
+                int br = (!down && !right) || (down && right && !contains(tiles[i], glm::ivec2(1, 1), grid));
+                sides += tl + tr + br + bl;
+            }
+
+            return sides;
         }
 
         std::vector<Walk> getStartingWalks(glm::ivec2 pos, vector<vector<char>> &grid)
@@ -248,15 +268,26 @@ public:
             return output;
         }
 
-        int getSides(vector<vector<char>> &grid)
+        int getSidesOld(vector<vector<char>> &grid)
         {
             unordered_set<Walk, Walk, Walk> seen;
 
             int sides = 0;
 
-            for (int i = 0; i < pieces.size(); i++)
+            // Walk through every tile which belongs to the perimiter
+            // Makes turns based on if we have reached a corner or not
+            // We increment the 'sides' counter whenever we make a turn.
+            // The direction we turn is based on the direction which is
+            // considered on the "outside".
+            // Once we reach a tile we have already seen then we know we have
+            // completed a circuit around the perimeter and have counted all
+            // the sides.
+            // By iterating over every tile considering both sides as "outside"
+            // and changing our "turn" condition we can count internal sides
+            // aswell.
+            for (int i = 0; i < perimiterLocations.size(); i++)
             {
-                glm::ivec2 start = pieces[i];
+                glm::ivec2 start = perimiterLocations[i];
                 vector<Walk> walks = getStartingWalks(start, grid);
 
                 for (Walk current : walks)
@@ -273,20 +304,28 @@ public:
                             break;
                         }
                         seen.insert(current);
+                        seen.insert(current.getInverse());
 
                         glm::ivec4 neighbors = getNeighbors(current.pos, grid);
                         if (neighbors[current.outside()] == 1)
                         {
-                            current.pos += dirs[current.outside()];
+                            // The outside has a neighbor tile, we make a turn
+                            // into that tile and continue
+                            current.pos += Utils::DIRS[current.outside()];
                             current.turn_outside();
                             sides += 1;
                         }
                         else if (neighbors[current.forward()] == 1)
                         {
-                            current.pos += dirs[current.forward()];
+                            // We can keep moving forward without needing to
+                            // make a turn.
+                            current.pos += Utils::DIRS[current.forward()];
                         }
                         else if (neighbors[current.forward()] == 0)
                         {
+                            // We have reached a dead end, we can't move
+                            // forward anymore and there isn't a neighbor on the
+                            // outside. So turn inside and continue.
                             current.turn_inside();
                             sides += 1;
                         }
@@ -298,16 +337,9 @@ public:
         }
     };
 
-    void part1()
+    std::vector<Region> getRegions()
     {
-        static const glm::ivec2 dirs[] = {
-            glm::ivec2(0, 1),  // down
-            glm::ivec2(0, -1), // up
-            glm::ivec2(1, 0),  // right
-            glm::ivec2(-1, 0)  // left
-        };
         vector<vector<int>> visited(_num_rows, vector<int>(_num_cols, 0));
-
         vector<Region> regions;
 
         for (int row = 0; row < _num_rows; row++)
@@ -334,7 +366,7 @@ public:
                     visited[current.y][current.x] = 1;
                     for (int i = 0; i < 4; i++)
                     {
-                        glm::ivec2 dir = dirs[i];
+                        glm::ivec2 dir = Utils::DIRS[i];
                         glm::ivec2 next = current + dir;
                         if (Utils::InRange(next, _num_cols, _num_rows) &&
                             visited[next.y][next.x] == 0 &&
@@ -349,6 +381,12 @@ public:
                 regions.push_back(region);
             }
         }
+        return std::move(regions);
+    }
+
+    void part1()
+    {
+        vector<Region> regions = std::move(getRegions());
 
         int cost = 0;
         for (int i = 0; i < regions.size(); i++)
@@ -360,56 +398,7 @@ public:
 
     void part2()
     {
-
-        static const glm::ivec2 dirs[] = {
-            glm::ivec2(0, 1),  // down
-            glm::ivec2(0, -1), // up
-            glm::ivec2(1, 0),  // right
-            glm::ivec2(-1, 0)  // left
-        };
-        vector<vector<int>> visited(_num_rows, vector<int>(_num_cols, 0));
-
-        vector<Region> regions;
-
-        for (int row = 0; row < _num_rows; row++)
-        {
-            for (int col = 0; col < _num_cols; col++)
-            {
-                char c = _grid[row][col];
-                if (visited[row][col] == 1)
-                {
-                    continue;
-                }
-
-                // flood fill through the region
-                queue<glm::ivec2> stack;
-                stack.push(glm::ivec2(col, row));
-                Region region;
-                while (stack.size() > 0)
-                {
-                    glm::ivec2 current = stack.front();
-                    stack.pop();
-                    region.addPiece(current, _grid);
-
-                    char plant = _grid[current.y][current.x];
-                    visited[current.y][current.x] = 1;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        glm::ivec2 dir = dirs[i];
-                        glm::ivec2 next = current + dir;
-                        if (Utils::InRange(next, _num_cols, _num_rows) &&
-                            visited[next.y][next.x] == 0 &&
-                            _grid[next.y][next.x] == plant)
-                        {
-                            visited[next.y][next.x] = 1;
-                            stack.push(next);
-                        }
-                    }
-                }
-
-                regions.push_back(region);
-            }
-        }
+        vector<Region> regions = std::move(getRegions());
 
         int cost = 0;
         for (int i = 0; i < regions.size(); i++)
@@ -417,7 +406,7 @@ public:
             int sides = regions[i].getSides(_grid);
             cost += regions[i].area * sides;
         }
-        printf("Cost = %d\n", cost/2);
+        printf("Cost = %d\n", cost);
     }
 
     void
@@ -426,6 +415,6 @@ public:
         bool readTest = false;
         ReadInput(readTest);
         // part1(); // test(1930), real(1473408)
-        part2(); // test(1206), real(886364)
+        part2(); // test(1206), test2(368), real(886364)
     }
 };
