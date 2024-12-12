@@ -47,6 +47,7 @@ namespace Utils
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
+
     // https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
     template <typename T, typename... Rest>
     void hash_combine(std::size_t &seed, const T &v, const Rest &...rest)
