@@ -23,6 +23,7 @@ add_executable(noin ${NOIN_SRCS})
 target_link_libraries(noin)
 target_compile_definitions(noin PUBLIC
     GLM_FORCE_QUAT_DATA_XYZW
+    GLM_FORCE_XYZW_ONLY
     GLM_ENABLE_EXPERIMENTAL
 )
 add_custom_command(TARGET noin POST_BUILD
