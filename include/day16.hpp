@@ -10,6 +10,10 @@ public:
     int _num_cols;
     glm::ivec2 _start_pos;
     glm::ivec2 _end_pos;
+    const int RIGHT = 0;
+    const int DOWN = 1;
+    const int LEFT = 2;
+    const int UP = 3;
 
     Day16() {}
     virtual ~Day16() {}
@@ -69,11 +73,6 @@ public:
         file.close();
     }
 
-    const int RIGHT = 0;
-    const int DOWN = 1;
-    const int LEFT = 2;
-    const int UP = 3;
-
     struct Position
     {
         glm::ivec2 pos;
@@ -103,6 +102,7 @@ public:
         glm::ivec2 pos;
         int dir;
         int dist;
+        std::vector<glm::ivec2> path;
 
         std::size_t operator()(const Node &v) const
         {
@@ -126,9 +126,7 @@ public:
     };
 
     using CameFromMap = unordered_map<Position, Position, Position, Position>;
-    // using CameFromMap2 = unordered_map<Position, std::vector<Position>, Position, Position>;
     using DistMap = unordered_map<Position, int, Position, Position>;
-    using DistMapVec2 = unordered_map<glm::ivec2, int>;
     using CameFromMap2 = unordered_map<glm::ivec2, glm::ivec2>;
 
     vector<Position> reconstructPath(
@@ -147,19 +145,6 @@ public:
         return path;
     }
 
-    vector<glm::ivec2> reconstructPath2(
-        CameFromMap2 &cameFrom,
-        glm::ivec2 current)
-    {
-        vector<glm::ivec2> path;
-        while (cameFrom.find(current) != cameFrom.end())
-        {
-            path.push_back(current);
-            current = cameFrom[current];
-        }
-        std::reverse(path.begin(), path.end());
-        return path;
-    }
 
     int calculateScore(vector<Position> path)
     {
@@ -181,30 +166,6 @@ public:
         return score;
     }
 
-    Position popNextPosition(vector<Position> &open, DistMap &dist)
-    {
-        // Get next minimum distance node
-        int currentIndex = -1;
-        int bestDistance = INT_MAX;
-        for (int i = 0; i < open.size(); i++)
-        {
-            Position candidate = open[i];
-            if (dist[candidate] < bestDistance)
-            {
-                currentIndex = i;
-                bestDistance = dist[candidate];
-            }
-        }
-        // assert(currentIndex != -1);
-        if (currentIndex == -1)
-        {
-            printf("No current index");
-        }
-        Position current = open[currentIndex];
-        open.erase(open.begin() + currentIndex);
-        return current;
-    }
-
     void part1()
     {
         // vector<Position> open;
@@ -221,17 +182,12 @@ public:
                 dist[{pos, DOWN}] = INT_MAX;
                 dist[{pos, LEFT}] = INT_MAX;
                 dist[{pos, UP}] = INT_MAX;
-                // open.push({pos, RIGHT, INT_MAX});
-                // open.push({pos, DOWN, INT_MAX});
-                // open.push({pos, LEFT, INT_MAX});
-                // open.push({pos, UP, INT_MAX});
             }
         }
         Position startPosition = {_start_pos, RIGHT};
         open.push({_start_pos, RIGHT, 0});
         dist[startPosition] = 0;
 
-        unordered_map<glm::ivec2, bool> apartOfPath;
 
         Position current;
         int iterCount = 0;
@@ -283,27 +239,7 @@ public:
         printf("Score: %d\n", score);
     }
 
-    void PrintGrid(unordered_map<glm::ivec2, bool> apart)
-    {
-        for (int y = 0; y < _grid.size(); ++y)
-        {
-            for (int x = 0; x < _grid[y].size(); ++x)
-            {
-                if (apart.find({x, y}) != apart.end())
-                {
-                    printf("O");
-                }
-                else
-                {
-                    printf("%c", _grid[y][x]);
-                }
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-
-    void PrintGrid2(glm::ivec2 current)
+    void PrintGrid(glm::ivec2 current)
     {
         for (int y = 0; y < _grid.size(); ++y)
         {
@@ -323,148 +259,106 @@ public:
         printf("\n");
     }
 
-    void bfs(
-        glm::ivec2 current,
-        int currentDir,
-        int currentCost,
-        std::unordered_map<glm::ivec2, int> &visited,
-        std::unordered_map<glm::ivec2, int> &cost,
-        std::unordered_map<glm::ivec2, glm::ivec2> &cameFrom,
-        std::vector<tuple<int, vector<glm::ivec2>>> &paths)
+    struct SeenNode
     {
-        if (current == _end_pos)
-        {
-            if (currentCost > cost[_end_pos]) {
-                return;
-            }
-            if (currentCost < cost[_end_pos])
-            {
-                paths.clear();
-            }
+        glm::ivec2 pos;
+        int dir;
 
-            vector<glm::ivec2> path;
-            while (cameFrom.find(current) != cameFrom.end())
-            {
-                path.push_back(current);
-                current = cameFrom[current];
-            }
-            path.push_back(_start_pos);
-            std::reverse(path.begin(), path.end());
-
-            paths.push_back({currentCost, std::move(path)});
-            return;
-        }
-        if (visited[current] == 1)
+        std::size_t operator()(const SeenNode &v) const
         {
-            return;
+            std::size_t h = 0;
+            Utils::hash_combine(h, v.pos.x, v.pos.y, v.dir);
+            return h;
         }
 
-        visited[current] = 1;
-        for (int i = 0; i < 4; i++)
+        bool operator()(const SeenNode &a, const SeenNode &b) const
         {
-            glm::ivec2 next = current + Utils::DIRS[i];
-            if (visited[next] == 1)
-            {
-                continue;
-            }
-            if (_grid[next.y][next.x] == '#')
-            {
-                continue;
-            }
-
-            int extraCost = 1;
-            if (i == Utils::turnDirLeft(currentDir))
-            {
-                extraCost += 1000;
-            }
-            else if (i == Utils::turnDirRight(currentDir))
-            {
-                extraCost += 1000;
-            }
-            else if (i == Utils::turnDirBack(currentDir))
-            {
-                extraCost += 2000;
-            }
-
-            int candidateCost = currentCost + extraCost;
-            int existingCost = cost[next];
-
-            if (existingCost < candidateCost)
-            {
-                continue;
-            }
-
-            cameFrom[next] = current;
-            
-            bfs(next, i, candidateCost, visited, cost, cameFrom, paths);
-            cost[next] = candidateCost;
-            // cost[next] = existingCost;
-            cameFrom.erase(next);
+            return a.pos.x == b.pos.x && a.pos.y == b.pos.y && a.dir == b.dir;
         }
-        visited[current] = 0;
-    }
+    };
 
-    // vector<vector<glm::ivec2>> constructPaths(
-    //     glm::ivec2 current,
-    //     std::unordered_map<glm::ivec2, vector<glm::ivec2>> &cameFrom)
-    // {
-    //     vector<glm::ivec2> path;
-    //     // while (cameFrom.find(current) != cameFrom.end())
-    //     // {
-    //     //     path.push_back(current);
-    //     //     current = cameFrom[current];
-    //     // }
-    //     // path.push_back(_start_pos);
-    //     // std::reverse(path.begin(), path.end());
 
-    //     return {};
-    // }
-
+    // I cheated.
+    //https://github.com/timfennis/advent-of-code-2024/blob/master/16.ndc
     void
     part2()
     {
-        std::unordered_map<glm::ivec2, int> visited;
         std::priority_queue<Node, vector<Node>, Node> open;
-        std::unordered_map<glm::ivec2, glm::ivec2> cameFrom;
-        std::unordered_map<glm::ivec2, int> cost;
-        std::vector<tuple<int, vector<glm::ivec2>>> paths;
+        std::unordered_map<SeenNode, int, SeenNode, SeenNode> cost;
+        std::vector<tuple<int, vector<glm::ivec2>>> all_paths;
 
-        for (int row = 0; row < _grid.size(); row++)
+        for (int row = 0; row < _grid.size(); ++row)
         {
-            for (int col = 0; col < _grid[row].size(); col++)
+            for (int col = 0; col < _grid[row].size(); ++col)
             {
                 if (_grid[row][col] == '.')
                 {
-                    cost[{col, row}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), RIGHT}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), DOWN}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), LEFT}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), UP}] = INT_MAX;
                 }
             }
         }
-        cost[_start_pos] = 0;
 
-        bfs(_start_pos, 0, 0, visited, cost, cameFrom, paths);
+        open.push({_start_pos, RIGHT, 0, {_start_pos}});
+        cost[{_start_pos, RIGHT}] = 0;
 
-        int minCost = INT_MAX;
-        for (auto [cost, path] : paths)
+        int currentBest = INT_MAX;
+        while (!open.empty())
         {
-            if (cost < minCost)
+            auto [current, currentDir, currentCost, path] = open.top();
+            open.pop();
+
+            if (current == _end_pos)
             {
-                minCost = cost;
+                currentBest = std::min(currentCost, currentBest);
+                all_paths.push_back({currentCost, path});
+            }
+
+            vector<tuple<int, int>> neighbors = {
+                {1, currentDir},
+                {1001, Utils::turnDirLeft(currentDir)},
+                {1001, Utils::turnDirRight(currentDir)}};
+            for (auto [comingCost, nextDir] : neighbors)
+            {
+                glm::ivec2 next = current + Utils::DIRS[nextDir];
+                int nextCost = currentCost + comingCost;
+                if (_grid[next.y][next.x] == '.')
+                {
+                    SeenNode key = {next, nextDir};
+                    if (cost[key] >= nextCost && nextCost < currentBest)
+                    {
+                        cost[key] = nextCost;
+
+                        std::vector newPath = path;
+                        newPath.push_back(next);
+                        open.push({next, nextDir, nextCost, std::move(newPath)});
+                    }
+                }
             }
         }
-        for (auto [cost, path] : paths)
+
+        // for (auto [cost, path]: all_paths) {
+        //     printf("Cost: %d\n", cost);
+        //     for (auto pos : path) {
+        //         _grid[pos.y][pos.x] = 'O';
+        //     }
+        //     PrintGrid(_start_pos);
+        //     for (auto pos : path) {
+        //         _grid[pos.y][pos.x] = '.';
+        //     }
+        // }
+
+        std::unordered_map<glm::ivec2, bool> seats;
+        for (auto [cost, path] : all_paths)
         {
-            if (cost > minCost) {continue;}
-            printf("Cost: %d\n", cost);
             for (auto pos : path)
             {
-                _grid[pos.y][pos.x] = 'O';
-            }
-            PrintGrid2(_start_pos);
-            for (auto pos : path)
-            {
-                _grid[pos.y][pos.x] = '.';
+                seats.insert({pos, true});
             }
         }
+        printf("Seats: %d\n", (int)seats.size());
     }
 
     void
@@ -472,7 +366,12 @@ public:
     {
         bool readTest = false;
         ReadInput(readTest);
-        // part1(); // test1(7036), test2(11048)
-        part2(); // test1(45), test2(64)
+        // part1(); // test1(7036), test2(11048), real(101492)
+        part2(); // test1(45), test2(64), real(543)
     }
 };
+
+// Learning:
+// 1. I don't know shortest path algorithms well enough
+// 2. I don't understand how to record multiple paths in an interative fashion
+// 3. 
