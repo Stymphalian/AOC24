@@ -54,6 +54,10 @@ namespace Utils
         glm::ivec2(0, -1)  // up
     };
 
+    inline int turnDirBack(int dir)
+    {
+        return (dir + 2) % 4;
+    }
     inline int turnDirRight(int dir)
     {
         return (dir + 1) % 4;
@@ -107,8 +111,6 @@ namespace Utils
                 continue;
             }
             if (currentCallback(stack, current))
-            {
-            }
             {
                 visited.insert(current);
             }
