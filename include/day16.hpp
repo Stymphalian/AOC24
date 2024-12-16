@@ -21,7 +21,7 @@ public:
     void ReadInput(bool readTest = false)
     {
         std::ifstream file(readTest
-                               ? "res/Day16/test2.txt"
+                               ? "res/Day16/test.txt"
                                : "res/Day16/input.txt");
 
         if (file.is_open() == false)
@@ -145,7 +145,6 @@ public:
         return path;
     }
 
-
     int calculateScore(vector<Position> path)
     {
         int score = 0;
@@ -187,7 +186,6 @@ public:
         Position startPosition = {_start_pos, RIGHT};
         open.push({_start_pos, RIGHT, 0});
         dist[startPosition] = 0;
-
 
         Position current;
         int iterCount = 0;
@@ -277,9 +275,98 @@ public:
         }
     };
 
+    void part3()
+    {
+        std::priority_queue<Node, vector<Node>, Node> open;
+        std::unordered_map<SeenNode, int, SeenNode, SeenNode> cost;
+        std::vector<tuple<int, vector<glm::ivec2>>> all_paths;
+
+        for (int row = 0; row < _grid.size(); ++row)
+        {
+            for (int col = 0; col < _grid[row].size(); ++col)
+            {
+                if (_grid[row][col] == '.')
+                {
+                    cost[{glm::ivec2(col, row), RIGHT}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), DOWN}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), LEFT}] = INT_MAX;
+                    cost[{glm::ivec2(col, row), UP}] = INT_MAX;
+                }
+            }
+        }
+
+        open.push({_start_pos, RIGHT, 0, {_start_pos}});
+        // LEARN: cost is keyed by postion and direction, not just postition
+        // The direction allows us to iterate through the multiple number
+        // of possible solutions
+        cost[{_start_pos, RIGHT}] = 0;
+
+        while (!open.empty())
+        {
+            // Learn: Storing the path directoy in the iteration
+            // saves us from having to traverse through a prev,cameFrom list
+            auto [current, currentDir, currentCost, path] = open.top();
+            open.pop();
+
+            if (current == _end_pos)
+            {
+                // Learn: Need to record the currentBest cost here.
+                // paths.push_back(constructPaths(current, cameFrom));
+                // continue;
+                all_paths.push_back({currentCost, path});
+                printf("Found\n");
+            }
+
+            vector<tuple<int, int>> neighbors{
+                {1, currentDir},
+                {1001, Utils::turnDirLeft(currentDir)},
+                {1001, Utils::turnDirRight(currentDir)},
+            };
+            for (auto [comingCost, nextDir] : neighbors)
+            {
+                glm::ivec2 next = current + Utils::DIRS[nextDir];
+                if (_grid[next.y][next.x] == '#')
+                {
+                    continue;
+                }
+                int candidateCost = currentCost + comingCost;
+                int existingCost = cost[{next, nextDir}];
+                if (candidateCost <= existingCost)  
+                {
+                    // missing the condition for nextCost < currentBest
+                    cost[{next, nextDir}] = candidateCost;
+                    std::vector<glm::ivec2> newPath = path;
+                    newPath.push_back(next);
+                    open.push({next, nextDir, candidateCost, newPath});
+                }
+            }
+        }
+        // assert(paths.size() == 1);
+
+        for (auto [cost, path]: all_paths) {
+            printf("Cost: %d\n", cost);
+            for (auto pos : path) {
+                _grid[pos.y][pos.x] = 'O';
+            }
+            PrintGrid(_start_pos);
+            for (auto pos : path) {
+                _grid[pos.y][pos.x] = '.';
+            }
+        }
+
+        std::unordered_map<glm::ivec2, bool> seats;
+        for (auto [cost, path] : all_paths)
+        {
+            for (auto pos : path)
+            {
+                seats.insert({pos, true});
+            }
+        }
+        printf("Seats: %d\n", (int)seats.size());
+    }
 
     // I cheated.
-    //https://github.com/timfennis/advent-of-code-2024/blob/master/16.ndc
+    // https://github.com/timfennis/advent-of-code-2024/blob/master/16.ndc
     void
     part2()
     {
@@ -339,16 +426,16 @@ public:
             }
         }
 
-        // for (auto [cost, path]: all_paths) {
-        //     printf("Cost: %d\n", cost);
-        //     for (auto pos : path) {
-        //         _grid[pos.y][pos.x] = 'O';
-        //     }
-        //     PrintGrid(_start_pos);
-        //     for (auto pos : path) {
-        //         _grid[pos.y][pos.x] = '.';
-        //     }
-        // }
+        for (auto [cost, path]: all_paths) {
+            printf("Cost: %d\n", cost);
+            for (auto pos : path) {
+                _grid[pos.y][pos.x] = 'O';
+            }
+            PrintGrid(_start_pos);
+            for (auto pos : path) {
+                _grid[pos.y][pos.x] = '.';
+            }
+        }
 
         std::unordered_map<glm::ivec2, bool> seats;
         for (auto [cost, path] : all_paths)
@@ -364,14 +451,14 @@ public:
     void
     Run()
     {
-        bool readTest = false;
+        bool readTest = true;
         ReadInput(readTest);
         // part1(); // test1(7036), test2(11048), real(101492)
         part2(); // test1(45), test2(64), real(543)
+        // part3(); // test1(45), test2(64), real(543)
     }
 };
 
 // Learning:
 // 1. I don't know shortest path algorithms well enough
 // 2. I don't understand how to record multiple paths in an interative fashion
-// 3. 
