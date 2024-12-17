@@ -48,6 +48,33 @@ namespace Utils
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
+    glm::ivec2 VRIGHT = glm::ivec2(1, 0);
+    glm::ivec2 VDOWN = glm::ivec2(0, 1);
+    glm::ivec2 VLEFT = glm::ivec2(-1, 0);
+    glm::ivec2 VUP = glm::ivec2(0, -1);
+    inline glm::ivec2 turnRight(glm::ivec2 dir) {
+        if (dir == VRIGHT) {
+            return VDOWN;
+        } else if (dir == VDOWN) {
+            return VLEFT;
+        } else if (dir == VLEFT) {
+            return VUP;
+        } else { // if (dir == VUP) {
+            return VRIGHT;
+        }
+    }
+    inline glm::ivec2 turnLeft(glm::ivec2 dir) {
+        if (dir == VRIGHT) {
+            return VUP;
+        } else if (dir == VUP) {
+            return VLEFT;
+        } else if (dir == VLEFT) {
+            return VDOWN;
+        } else { // if (dir == VDOWN) {
+            return VRIGHT;
+        }
+    }
+
     std::vector<glm::ivec2> DIRS = {
         glm::ivec2(1, 0),  // right
         glm::ivec2(0, 1),  // down
