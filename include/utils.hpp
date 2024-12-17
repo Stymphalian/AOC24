@@ -32,6 +32,24 @@
 
 using namespace std;
 
+#ifndef NDEBUG
+#define M_Assert(Expr, Msg) \
+    __M_Assert(#Expr, Expr, __FILE__, __LINE__, Msg)
+#else
+#define M_Assert(Expr, Msg) ;
+#endif
+
+void __M_Assert(const char *expr_str, bool expr, const char *file, int line, const std::string &msg)
+{
+    if (!expr)
+    {
+        std::cerr << "Assert failed:\t" << msg << "\n"
+                  << "Expected:\t" << expr_str << "\n"
+                  << "Source:\t\t" << file << ", line " << line << "\n";
+        abort();
+    }
+}
+
 namespace Utils
 {
     using GridInt = std::vector<std::vector<int>>;
@@ -48,29 +66,98 @@ namespace Utils
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
+    // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
+    size_t getProgramHash(std::vector<int> vec)
+    {
+        std::sort(vec.begin(), vec.end());
+        std::size_t seed = vec.size();
+        for (auto x : vec)
+        {
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = (x >> 16) ^ x;
+            seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+
+    // General hash function for std::array
+    // https://github.com/jmd-dk/advent-of-code/blob/main/2024/magic.h
+    template <typename T>
+    struct ArrayHash
+    {
+        /* Simplified version of Python's tuple hashing,
+        itself a simplified version of xxHash. See
+        https://github.com/python/cpython/blob/main/Objects/tupleobject.c
+        */
+        static constexpr bool _64 = (sizeof(std::size_t) > 4);
+        static constexpr std::size_t prime1 =
+            static_cast<std::size_t>(_64 ? 11400714785074694791ULL : 2654435761UL);
+        static constexpr std::size_t prime2 =
+            static_cast<std::size_t>(_64 ? 14029467366897019727ULL : 2246822519UL);
+        static constexpr std::size_t prime5 =
+            static_cast<std::size_t>(_64 ? 2870177450012600261ULL : 374761393UL);
+        static constexpr std::hash<T> hasher{};
+        template <std::size_t N>
+        std::size_t operator()(const std::array<T, N> &arr) const
+        {
+            std::size_t hash = prime5;
+            for (const T &elem : arr)
+            {
+                hash += hasher(elem) * prime2;
+                if constexpr (_64)
+                {
+                    hash = (hash << 31) | (hash >> 33);
+                }
+                else
+                {
+                    hash = (hash << 13) | (hash >> 19);
+                }
+                hash *= prime1;
+            }
+            return hash;
+        }
+    };
+
     glm::ivec2 VRIGHT = glm::ivec2(1, 0);
     glm::ivec2 VDOWN = glm::ivec2(0, 1);
     glm::ivec2 VLEFT = glm::ivec2(-1, 0);
     glm::ivec2 VUP = glm::ivec2(0, -1);
-    inline glm::ivec2 turnRight(glm::ivec2 dir) {
-        if (dir == VRIGHT) {
+    inline glm::ivec2 turnCW(glm::ivec2 dir)
+    {
+        if (dir == VRIGHT)
+        {
             return VDOWN;
-        } else if (dir == VDOWN) {
+        }
+        else if (dir == VDOWN)
+        {
             return VLEFT;
-        } else if (dir == VLEFT) {
+        }
+        else if (dir == VLEFT)
+        {
             return VUP;
-        } else { // if (dir == VUP) {
+        }
+        else
+        { // if (dir == VUP) {
             return VRIGHT;
         }
     }
-    inline glm::ivec2 turnLeft(glm::ivec2 dir) {
-        if (dir == VRIGHT) {
+    inline glm::ivec2 turnCCW(glm::ivec2 dir)
+    {
+        if (dir == VRIGHT)
+        {
             return VUP;
-        } else if (dir == VUP) {
+        }
+        else if (dir == VUP)
+        {
             return VLEFT;
-        } else if (dir == VLEFT) {
+        }
+        else if (dir == VLEFT)
+        {
             return VDOWN;
-        } else { // if (dir == VDOWN) {
+        }
+        else
+        { // if (dir == VDOWN) {
             return VRIGHT;
         }
     }
@@ -347,16 +434,16 @@ namespace Utils
     template <typename T>
     bool InRange(glm::vec2 vec, vector<vector<T>> &grid)
     {
-        int height = (int) grid.size();
-        int width = (int) grid[0].size();
+        int height = (int)grid.size();
+        int width = (int)grid[0].size();
         return vec.x >= 0 && vec.x < width && vec.y >= 0 && vec.y < height;
     }
 
     template <typename T>
     bool InRange(int x, int y, vector<vector<T>> &grid)
     {
-        int height = (int) grid.size();
-        int width = (int) grid[0].size();
+        int height = (int)grid.size();
+        int width = (int)grid[0].size();
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
