@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     }
 
     printf("Advent Of Code 2024\n");
-    Day17 day;
+    Day18 day;
 
     auto start = chrono::system_clock::now();
     day.Run();
