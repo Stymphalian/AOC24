@@ -7,7 +7,6 @@ class Day18
 public:
     vector<glm::ivec2> _positions;
     vector<vector<int>> _grid;
-    ;
     int _num_rows = 70;
     int _num_cols = 70;
     int _num_iters = 1024;
@@ -37,6 +36,7 @@ public:
             assert(tokens.size() == 2);
             _positions.push_back(glm::ivec2(std::stoi(tokens[0]), std::stoi(tokens[1])));
         }
+        file.close();
 
         if (readTest)
         {
@@ -62,28 +62,12 @@ public:
             _grid.push_back(v);
         }
 
-        std::cout << _positions.size() << std::endl;
-        Utils::PrintVector(_positions);
-        Utils::PrintIntVector2D(_grid);
-        cout << _start_pos.x << "," << _start_pos.y << endl;
-        cout << _end_pos.x << "," << _end_pos.y << endl;
-        cout << endl;
-
-        file.close();
-    }
-
-    std::vector<glm::ivec2> constructPath(
-        glm::ivec2 current,
-        unordered_map<glm::ivec2, glm::ivec2> &cameFrom)
-    {
-        vector<glm::ivec2> path;
-        while (cameFrom.find(current) != cameFrom.end())
-        {
-            path.push_back(current);
-            current = cameFrom[current];
-        }
-        path.push_back(_start_pos);
-        return std::move(path);
+        // std::cout << _positions.size() << std::endl;
+        // Utils::PrintVector(_positions);
+        // Utils::PrintIntVector2D(_grid);
+        // cout << _start_pos.x << "," << _start_pos.y << endl;
+        // cout << _end_pos.x << "," << _end_pos.y << endl;
+        // cout << endl;
     }
 
     struct Node
@@ -117,64 +101,54 @@ public:
 
     std::vector<glm::ivec2> findShortestPath(vector<vector<int>> &grid)
     {
-        // vector<Position> open;
-        std::priority_queue<Node, std::vector<Node>, Node> open;
+        vector<glm::ivec2> stack;
+        unordered_set<glm::ivec2> visited;
+        vector<vector<int>> cost(_num_rows, vector<int>(_num_cols, INT_MAX));
         unordered_map<glm::ivec2, glm::ivec2> cameFrom;
-        unordered_map<glm::ivec2, int> dist;
 
-        for (int i = 0; i < _num_rows; i++)
-        {
-            for (int j = 0; j < _num_cols; j++)
-            {
-                glm::ivec2 pos = glm::ivec2(j, i);
-                dist[pos] = INT_MAX;
-            }
-        }
-
-        open.push({_start_pos, 0});
-        dist[_start_pos] = 0;
-
-        int iterCount = 0;
-        glm::ivec2 current = glm::ivec2(0, 0);
+        stack.push_back(_start_pos);
         bool solutionFound = false;
-        while (!open.empty())
-        {
-            iterCount += 1;
-            auto [current, currentDist] = open.top();
-            open.pop();
+        cost[_start_pos.y][_start_pos.x] = 0;
 
+        while (!stack.empty())
+        {
+            glm::ivec2 current = stack.back();
+            stack.pop_back();
             if (current == _end_pos)
             {
                 solutionFound = true;
                 break;
             }
+            visited.insert(current);
 
-            for (int i = 0; i < 4; i++)
-            {
-                glm::ivec2 next = current + Utils::DIRS[i];
-                if (!Utils::InRange(next, grid))
+            for (auto next : Utils::forEachDir(current)) {
+                if (!Utils::InRange(next, _num_cols, _num_rows))
                 {
                     continue;
                 }
-                if (grid[next.y][next.x] != 1)
+                if (visited.find(next) != visited.end())
                 {
-                    int altDist = dist[current] + 1;
-                    if (altDist < dist[next])
+                    continue;
+                }
+
+                if (grid[next.y][next.x] == 0)
+                {
+                    stack.push_back(next);
+
+                    if (cost[current.y][current.x] + 1 < cost[next.y][next.x])
                     {
-                        dist[next] = altDist;
+                        cost[next.y][next.x] = cost[current.y][current.x] + 1;
                         cameFrom[next] = current;
-                        open.push({next, altDist});
                     }
                 }
             }
         }
 
-        if (!solutionFound) {
+        if (!solutionFound)
+        {
             return {};
         }
-
-        auto path = constructPath(_end_pos, cameFrom);
-        // PrintGrid(path, grid);
+        auto path = Utils::constructPath(_start_pos, _end_pos, cameFrom);
         return std::move(path);
     }
 
@@ -185,37 +159,54 @@ public:
             glm::ivec2 pos = _positions[i];
             _grid[pos.y][pos.x] = 1;
         }
-        Utils::PrintIntVector2D(_grid);
+        // Utils::PrintIntVector2D(_grid);
         auto path = findShortestPath(_grid);
+        PrintGrid(path, _grid);
         cout << path.size() - 1 << endl;
     }
 
-    void part2()
+    std::vector<glm::ivec2> eval(int offset)
     {
-        printf("part2\n");
-        for (int i = 0; i < _num_iters; i++)
+        for (int i = 0; i <= offset; i++)
         {
             glm::ivec2 pos = _positions[i];
             _grid[pos.y][pos.x] = 1;
         }
-
-        int iters = _num_iters;
-        while (true)
+        auto path = findShortestPath(_grid);
+        for (int i = 0; i <= offset; i++)
         {
-            glm::ivec2 pos = _positions[iters];
-            _grid[pos.y][pos.x] = 1;
+            glm::ivec2 pos = _positions[i];
+            _grid[pos.y][pos.x] = 0;
+        }
+        return std::move(path);
+    }
 
-            auto path = findShortestPath(_grid);
-            if (path.size() == 0) {
-                break;
-            }
-            iters += 1;
+    int binarySearch(int start, int end)
+    {
+        if (start >= end)
+        {
+            auto path = std::move(eval(start));
+            return path.empty() ? start : -1;
         }
 
+        int mid = start + (end - start) / 2;
+        auto path = std::move(eval(mid));
+        if (path.empty())
+        {
+            return binarySearch(start, mid);
+        }
+        else
+        {
+            return binarySearch(mid + 1, end);
+        }
+    }
+
+    void part2()
+    {
+        int iters = binarySearch(0, (int)_positions.size() - 1);
+        M_Assert(iters >= 0, "Iters must be a postive number");
+        std::cout << "Position: ";
         std::cout << _positions[iters].x << "," << _positions[iters].y << endl;
-        // Utils::PrintIntVector2D(_grid);
-        // auto path = findShortestPath(_grid);
-        // cout << path.size() - 1 << endl;
     }
 
     void
@@ -223,7 +214,13 @@ public:
     {
         bool readTest = false;
         ReadInput(readTest);
-        // part1();
-        part2();
+        // part1(); // test(22), real(304)
+        part2(); // test(6,1), real(50,28)
     }
 };
+
+// Learnings:
+// 1. Using Djikstra's is expensive when a BFS/DFS would work just fine with this one
+// 2. copying djiktra's code from day16 was just faster than writing bfs i guess.
+// 3. using Binary Search on the remaning space is more O(n) efficient than a brute forece
+//    iterative scan. But the problem is so small that it didn't matter.

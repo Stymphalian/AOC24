@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <iterator>
 #include <list>
 #include <cstdio>
 #include <iostream>
@@ -29,6 +30,8 @@
 #include <locale>
 #include <cassert>
 #include <chrono>
+
+#include "utils_dirs.hpp"
 
 using namespace std;
 
@@ -81,6 +84,21 @@ namespace Utils
         return seed;
     }
 
+    std::vector<glm::ivec2> constructPath(
+        glm::ivec2 startPos,
+        glm::ivec2 endPos,
+        unordered_map<glm::ivec2, glm::ivec2> &cameFrom)
+    {
+        vector<glm::ivec2> path;
+        while (cameFrom.find(endPos) != cameFrom.end())
+        {
+            path.push_back(endPos);
+            endPos = cameFrom[endPos];
+        }
+        path.push_back(startPos);
+        return std::move(path);
+    }
+
     // General hash function for std::array
     // https://github.com/jmd-dk/advent-of-code/blob/main/2024/magic.h
     template <typename T>
@@ -119,69 +137,6 @@ namespace Utils
         }
     };
 
-    glm::ivec2 VRIGHT = glm::ivec2(1, 0);
-    glm::ivec2 VDOWN = glm::ivec2(0, 1);
-    glm::ivec2 VLEFT = glm::ivec2(-1, 0);
-    glm::ivec2 VUP = glm::ivec2(0, -1);
-    inline glm::ivec2 turnCW(glm::ivec2 dir)
-    {
-        if (dir == VRIGHT)
-        {
-            return VDOWN;
-        }
-        else if (dir == VDOWN)
-        {
-            return VLEFT;
-        }
-        else if (dir == VLEFT)
-        {
-            return VUP;
-        }
-        else
-        { // if (dir == VUP) {
-            return VRIGHT;
-        }
-    }
-    inline glm::ivec2 turnCCW(glm::ivec2 dir)
-    {
-        if (dir == VRIGHT)
-        {
-            return VUP;
-        }
-        else if (dir == VUP)
-        {
-            return VLEFT;
-        }
-        else if (dir == VLEFT)
-        {
-            return VDOWN;
-        }
-        else
-        { // if (dir == VDOWN) {
-            return VRIGHT;
-        }
-    }
-
-    std::vector<glm::ivec2> DIRS = {
-        glm::ivec2(1, 0),  // right
-        glm::ivec2(0, 1),  // down
-        glm::ivec2(-1, 0), // left
-        glm::ivec2(0, -1)  // up
-    };
-
-    inline int turnDirBack(int dir)
-    {
-        return (dir + 2) % 4;
-    }
-    inline int turnDirRight(int dir)
-    {
-        return (dir + 1) % 4;
-    }
-    inline int turnDirLeft(int dir)
-    {
-        return ((dir + 4) - 1) % 4;
-    }
-
     // https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
     template <typename T, typename... Rest>
     void hash_combine(std::size_t &seed, const T &v, const Rest &...rest)
@@ -200,7 +155,7 @@ namespace Utils
         std::size_t operator()(const HashKeyExample &v) const
         {
             std::size_t h = 0;
-            hash_combine(h, v.num, v.blinks);
+            Utils::hash_combine(h, v.num, v.blinks);
             return h;
         }
 
