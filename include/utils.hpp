@@ -53,6 +53,46 @@ void __M_Assert(const char *expr_str, bool expr, const char *file, int line, con
     }
 }
 
+template <typename T>
+using List = std::vector<T>;
+
+template <
+    class Key,
+    class T,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>>
+using Dict = std::unordered_map<Key, T, Hash, KeyEqual>;
+
+template <
+    class Key,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>>
+using Set = std::unordered_set<Key, Hash, KeyEqual>;
+
+
+// struct NodeHashKeyExample
+// {
+//     glm::ivec2 pos;
+//     int dir;
+
+//     std::size_t operator()(const NodeHashKeyExample &v) const
+//     {
+//         std::size_t h = 0;
+//         Utils::hash_combine(h, v.pos, v.dir);
+//         return h;
+//     }
+// };
+// template <>
+// struct std::hash<NodeHashKeyExample>
+// {
+//     std::size_t operator()(const NodeHashKeyExample &v) const
+//     {
+//         std::size_t h = 0;
+//         Utils::hash_combine(h, v.pos, v.dir);
+//         return h;
+//     }
+// };
+
 namespace Utils
 {
     using GridInt = std::vector<std::vector<int>>;
@@ -169,8 +209,8 @@ namespace Utils
         glm::ivec2 start,
         DFS_Grid_CurrentCallback currentCallback)
     {
-        SetVec2 visited;
-        ListVec2 stack;
+        unordered_set<glm::ivec2> visited;
+        vector<glm::ivec2> stack;
         stack.push_back(start);
         while (stack.size() > 0)
         {
@@ -191,8 +231,8 @@ namespace Utils
         glm::ivec2 start,
         BFS_Grid_CurrentCallback currentCallback)
     {
-        SetVec2 visited;
-        QueueVec2 queue;
+        unordered_set<glm::ivec2> visited;
+        std::queue<glm::ivec2> queue;
         queue.push(start);
         while (queue.size() > 0)
         {
