@@ -224,7 +224,7 @@ public:
         {
             grid[r._pos.y][r._pos.x] += 1;
         }
-        std::ofstream out(std::format("out-{}.txt", second));
+        std::ofstream out(fmt::format("out-{}.txt", second));
         for (int y = 0; y < _height; y++)
         {
             for (int x = 0; x < _width; x++)
@@ -285,15 +285,15 @@ public:
             // 7370
         }
         uint64_t average_safety = safety / 10403;
-        printf("Average safety = %lld\n", average_safety);
+        printf("Average safety = %ld\n", average_safety);
     }
 
     void
     Run()
     {
-        bool readTest = false;
+        bool readTest = true;
         ReadInput(readTest);
-        // part1(); //real(225552000)
-        part2(); // real(7371)
+        part1(); //real(225552000)
+        // part2(); // real(7371)
     }
 };

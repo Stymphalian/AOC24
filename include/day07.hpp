@@ -84,9 +84,9 @@ public:
         }
 
         void Print() {
-            printf("%lld: ", test_value);
+            printf("%ld: ", test_value);
             for (auto &n : nums) {
-                printf("%lld ", n);
+                printf("%ld ", n);
             }
             printf("\n");
         }
@@ -149,7 +149,7 @@ public:
                 total += eq.test_value;
             }
         }
-        printf("Total: %lld\n", total);        
+        printf("Total: %ld\n", total);        
     }
 
     void part2()
@@ -161,7 +161,7 @@ public:
                 total += eq.test_value;
             }
         }
-        printf("Total: %lld\n", total);    
+        printf("Total: %ld\n", total);    
     }
 
     void

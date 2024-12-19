@@ -128,7 +128,7 @@ public:
             }
             Cost += cost;
         }
-        printf("Cost = %lld\n", Cost);
+        printf("Cost = %ld\n", Cost);
     }
 
     int64_t solve2(Machine &machine)
@@ -159,7 +159,7 @@ public:
         {
             Cost += solve2(machine);
         }
-        printf("Cost = %lld\n", Cost);
+        printf("Cost = %ld\n", Cost);
     }
 
     void

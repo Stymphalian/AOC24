@@ -5,6 +5,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/hash.hpp>
 
+#include <fmt/core.h>
+
 #include <vector>
 #include <string>
 #include <regex>
@@ -210,12 +212,11 @@ namespace Utils
         }
         cout << endl;
     }
-
     void PrintVector(std::vector<glm::vec3> &a)
     {
         for (int i = 0; i < a.size(); i++)
         {
-            cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
+            cout << fmt::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
         cout << endl;
     }
@@ -224,7 +225,7 @@ namespace Utils
     {
         for (int i = 0; i < a.size(); i++)
         {
-            cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
+            cout << fmt::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
         cout << endl;
     }

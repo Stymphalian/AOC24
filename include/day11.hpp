@@ -153,7 +153,7 @@ public:
         for(auto n : nums){
             count += get_sequence(n, blinks, dp);
         }
-        printf("Length: %lld\n", count);
+        printf("Length: %ld\n", count);
     }
 
     void
