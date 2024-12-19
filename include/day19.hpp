@@ -36,7 +36,7 @@ public:
             if (state == 0)
             {
                 state += 1;
-                _towels = move(Utils::split(line, ", "));
+                _towels = std::move(Utils::split(line, ", "));
             }
             else
             {
@@ -139,7 +139,7 @@ public:
         {
             count += canCreatePattern2(pattern, _towels, dp);
         }
-        printf("Count %lld\n", count);
+        printf("Count %ld\n", count);
     }
 
     void

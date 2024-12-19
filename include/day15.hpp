@@ -214,7 +214,7 @@ public:
 
     void PrintGrid2(int move = 0)
     {
-        std::ofstream out(std::format("grid-{}.txt", move));
+        std::ofstream out(fmt::format("grid-{}.txt", move));
         if (!out.is_open())
         {
             std::cerr << "Can't open file.\n";

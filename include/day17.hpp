@@ -120,9 +120,9 @@ public:
             }
         }
 
-        printf("Register A: %lld\n", _orig._regA);
-        printf("Register B: %lld\n", _orig._regB);
-        printf("Register C: %lld\n", _orig._regC);
+        printf("Register A: %ld\n", _orig._regA);
+        printf("Register B: %ld\n", _orig._regB);
+        printf("Register C: %ld\n", _orig._regC);
         for (int i = 0; i < _orig._instructions.size(); i++)
         {
             printf("%d %d\n", _orig._instructions[i].x, _orig._instructions[i].y);
@@ -274,9 +274,9 @@ public:
             processInstruction(instruction.x, (int64_t)instruction.y, state);
         }
 
-        printf("Register A: %lld\n", state._regA);
-        printf("Register B: %lld\n", state._regB);
-        printf("Register C: %lld\n", state._regC);
+        printf("Register A: %ld\n", state._regA);
+        printf("Register B: %ld\n", state._regB);
+        printf("Register C: %ld\n", state._regC);
         printf("\n");
         for (auto p : state._output)
         {
@@ -360,7 +360,7 @@ public:
         emulatePart2Program(bestA, output);
         bool isMatch = _orig.isSameProgram(output);
 
-        printf("Starting A = %lld\n", bestA);
+        printf("Starting A = %ld\n", bestA);
         printf("IsMatch = %d\n", isMatch);
         Utils::PrintIntVector(output);
     }
