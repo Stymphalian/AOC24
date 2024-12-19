@@ -113,10 +113,10 @@ public:
         while (std::getline(file, line))
         {
             Utils::trim(line);
-            std::vector<string> tokens = Utils::split(line, ":");
+            std::vector<string> tokens = Utils::splitOld(line, ":");
             assert(tokens.size() == 2);
             int64_t test_value = std::stoll(tokens[0]);
-            std::vector<string> nums = Utils::split(
+            std::vector<string> nums = Utils::splitOld(
                 Utils::trim_copy(tokens[1]), " "
             );
             std::vector<int64_t> nums_ints;

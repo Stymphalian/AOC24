@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <iterator>
 #include <list>
 #include <cstdio>
 #include <iostream>
@@ -22,6 +23,7 @@
 #include <cmath>
 #include <tuple>
 #include <unordered_map>
+#include <map>
 #include <set>
 #include <unordered_set>
 #include <sstream>
@@ -31,7 +33,73 @@
 #include <cassert>
 #include <chrono>
 
+#include "utils_dirs.hpp"
+
 using namespace std;
+
+#ifndef NDEBUG
+#define M_Assert(Expr, Msg) \
+    __M_Assert(#Expr, Expr, __FILE__, __LINE__, Msg)
+#else
+#define M_Assert(Expr, Msg) ;
+#endif
+
+void __M_Assert(const char *expr_str, bool expr, const char *file, int line, const std::string &msg)
+{
+    if (!expr)
+    {
+        std::cerr << "Assert failed:\t" << msg << "\n"
+                  << "Expected:\t" << expr_str << "\n"
+                  << "Source:\t\t" << file << ", line " << line << "\n";
+        abort();
+    }
+}
+
+using i64 = int64_t;
+using i32 = int32_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+using f32 = float;
+using f64 = double;
+
+template <typename T>
+using List = std::vector<T>;
+
+template <
+    class Key,
+    class T,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>>
+using Dict = std::unordered_map<Key, T, Hash, KeyEqual>;
+
+template <
+    class Key,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>>
+using Set = std::unordered_set<Key, Hash, KeyEqual>;
+
+// struct NodeHashKeyExample
+// {
+//     glm::ivec2 pos;
+//     int dir;
+
+//     std::size_t operator()(const NodeHashKeyExample &v) const
+//     {
+//         std::size_t h = 0;
+//         Utils::hash_combine(h, v.pos, v.dir);
+//         return h;
+//     }
+// };
+// template <>
+// struct std::hash<NodeHashKeyExample>
+// {
+//     std::size_t operator()(const NodeHashKeyExample &v) const
+//     {
+//         std::size_t h = 0;
+//         Utils::hash_combine(h, v.pos, v.dir);
+//         return h;
+//     }
+// };
 
 namespace Utils
 {
@@ -49,21 +117,73 @@ namespace Utils
     using DFS_Grid_CurrentCallback = std::function<bool(Utils::ListVec2 &, glm::ivec2 pos)>;
     using BFS_Grid_CurrentCallback = std::function<bool(Utils::QueueVec2 &, glm::ivec2 pos)>;
 
-    std::vector<glm::ivec2> DIRS = {
-        glm::ivec2(1, 0),  // right
-        glm::ivec2(0, 1),  // down
-        glm::ivec2(-1, 0), // left
-        glm::ivec2(0, -1)  // up
-    };
+    // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
+    size_t getProgramHash(std::vector<int> vec)
+    {
+        std::sort(vec.begin(), vec.end());
+        std::size_t seed = vec.size();
+        for (auto x : vec)
+        {
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = ((x >> 16) ^ x) * 0x45d9f3b;
+            x = (x >> 16) ^ x;
+            seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
 
-    inline int turnDirRight(int dir)
+    std::vector<glm::ivec2> constructPath(
+        glm::ivec2 startPos,
+        glm::ivec2 endPos,
+        unordered_map<glm::ivec2, glm::ivec2> &cameFrom)
     {
-        return (dir + 1) % 4;
+        vector<glm::ivec2> path;
+        while (cameFrom.find(endPos) != cameFrom.end())
+        {
+            path.push_back(endPos);
+            endPos = cameFrom[endPos];
+        }
+        path.push_back(startPos);
+        return std::move(path);
     }
-    inline int turnDirLeft(int dir)
+
+    // General hash function for std::array
+    // https://github.com/jmd-dk/advent-of-code/blob/main/2024/magic.h
+    template <typename T>
+    struct ArrayHash
     {
-        return ((dir + 4) - 1) % 4;
-    }
+        /* Simplified version of Python's tuple hashing,
+        itself a simplified version of xxHash. See
+        https://github.com/python/cpython/blob/main/Objects/tupleobject.c
+        */
+        static constexpr bool _64 = (sizeof(std::size_t) > 4);
+        static constexpr std::size_t prime1 =
+            static_cast<std::size_t>(_64 ? 11400714785074694791ULL : 2654435761UL);
+        static constexpr std::size_t prime2 =
+            static_cast<std::size_t>(_64 ? 14029467366897019727ULL : 2246822519UL);
+        static constexpr std::size_t prime5 =
+            static_cast<std::size_t>(_64 ? 2870177450012600261ULL : 374761393UL);
+        static constexpr std::hash<T> hasher{};
+        template <std::size_t N>
+        std::size_t operator()(const std::array<T, N> &arr) const
+        {
+            std::size_t hash = prime5;
+            for (const T &elem : arr)
+            {
+                hash += hasher(elem) * prime2;
+                if constexpr (_64)
+                {
+                    hash = (hash << 31) | (hash >> 33);
+                }
+                else
+                {
+                    hash = (hash << 13) | (hash >> 19);
+                }
+                hash *= prime1;
+            }
+            return hash;
+        }
+    };
 
     // https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x
     template <typename T, typename... Rest>
@@ -83,7 +203,7 @@ namespace Utils
         std::size_t operator()(const HashKeyExample &v) const
         {
             std::size_t h = 0;
-            hash_combine(h, v.num, v.blinks);
+            Utils::hash_combine(h, v.num, v.blinks);
             return h;
         }
 
@@ -97,8 +217,8 @@ namespace Utils
         glm::ivec2 start,
         DFS_Grid_CurrentCallback currentCallback)
     {
-        SetVec2 visited;
-        ListVec2 stack;
+        unordered_set<glm::ivec2> visited;
+        vector<glm::ivec2> stack;
         stack.push_back(start);
         while (stack.size() > 0)
         {
@@ -110,8 +230,6 @@ namespace Utils
             }
             if (currentCallback(stack, current))
             {
-            }
-            {
                 visited.insert(current);
             }
         }
@@ -121,8 +239,8 @@ namespace Utils
         glm::ivec2 start,
         BFS_Grid_CurrentCallback currentCallback)
     {
-        SetVec2 visited;
-        QueueVec2 queue;
+        unordered_set<glm::ivec2> visited;
+        std::queue<glm::ivec2> queue;
         queue.push(start);
         while (queue.size() > 0)
         {
@@ -139,7 +257,57 @@ namespace Utils
         }
     }
 
-    std::vector<std::string> split(const std::string &s, const std::string &delimiter)
+    bool startsWith(const std::string &s, const std::string &prefix, size_t offset = 0)
+    {
+        if (s.length() < prefix.length())
+        {
+            return false;
+        }
+
+        size_t i = offset;
+        size_t j = 0;
+        while (i < s.length() && j < prefix.length())
+        {
+            if (s[i] != prefix[j])
+            {
+                return false;
+            }
+            i++;
+            j++;
+        }
+        return true;
+    }
+
+    // TODO: Need to add more testing for this split, but most basic cases should work
+    std::vector<std::string> split(const std::string &s, const std::string &target)
+    {
+        std::vector<std::string> tokens;
+        size_t start = 0;
+        size_t end = 0;
+        for (size_t i = 0; i < s.length(); i++)
+        {
+            if (Utils::startsWith(s, target, (size_t)i))
+            {
+                if (end != start)
+                {
+                    tokens.push_back(s.substr(start, end - start));
+                }
+                start = i + target.length();
+                end = i + target.length();
+                i += target.length() - 1;
+                continue;
+            }
+            end = i + 1;
+        }
+
+        if (end != start)
+        {
+            tokens.push_back(s.substr(start, end - start));
+        }
+        return tokens;
+    }
+
+    std::vector<std::string> splitOld(const std::string &s, const std::string &delimiter)
     {
         std::vector<std::string> tokens;
         int start = 0;
@@ -318,16 +486,16 @@ namespace Utils
     template <typename T>
     bool InRange(glm::vec2 vec, vector<vector<T>> &grid)
     {
-        int height = (int) grid.size();
-        int width = (int) grid[0].size();
+        int height = (int)grid.size();
+        int width = (int)grid[0].size();
         return vec.x >= 0 && vec.x < width && vec.y >= 0 && vec.y < height;
     }
 
     template <typename T>
     bool InRange(int x, int y, vector<vector<T>> &grid)
     {
-        int height = (int) grid.size();
-        int width = (int) grid[0].size();
+        int height = (int)grid.size();
+        int width = (int)grid[0].size();
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
