@@ -27,7 +27,7 @@ public:
         std::string line;
         while (std::getline(file, line))
         {
-            auto tokens = Utils::split(line, " ");
+            auto tokens = Utils::splitOld(line, " ");
 
             Report_t report;
             report.reserve(tokens.size());

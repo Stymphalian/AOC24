@@ -26,7 +26,7 @@ public:
         while (std::getline(file, line))
         {
             Utils::trim(line);
-            vector<string> tokens = Utils::split(line, " ");
+            vector<string> tokens = Utils::splitOld(line, " ");
             for (auto &token : tokens)
             {
                 _nums.push_back(token);

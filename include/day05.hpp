@@ -36,12 +36,12 @@ public:
             }
             
             if (state == 0) {
-                std::vector<string> tokens = Utils::split(line, "|");
+                std::vector<string> tokens = Utils::splitOld(line, "|");
                 assert(tokens.size() == 2);
                 _rules[std::stoi(tokens[0])].insert(std::stoi(tokens[1]));
                 _irules[std::stoi(tokens[1])].insert(std::stoi(tokens[0]));
             } else {
-                std::vector<string> tokens = Utils::split(line, ",");
+                std::vector<string> tokens = Utils::splitOld(line, ",");
                 assert(tokens.size() > 0);
                 vector<int> v;
                 for (auto &t : tokens) {

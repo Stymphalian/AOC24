@@ -5,8 +5,8 @@
 class Day19
 {
 public:
-    std::vector<std::string> _towels;
-    std::vector<std::string> _patterns;
+    vector<string> _towels;
+    vector<string> _patterns;
 
     Day19() {}
     virtual ~Day19() {}
@@ -14,18 +14,18 @@ public:
     void ReadInput(bool readTest = false)
     {
         std::ifstream file(readTest
-                               ? "res/Day19/test2.txt"
-                               : "res/Day19/input.txt");
+                          ? "res/Day19/test.txt"
+                          : "res/Day19/input.txt");
 
         if (file.is_open() == false)
         {
-            std::cout << "Failed to open file" << std::endl;
+            cout << "Failed to open file" << endl;
             return;
         }
 
-        std::string line;
+        string line;
         int state = 0;
-        while (std::getline(file, line))
+        while (getline(file, line))
         {
             Utils::trim(line);
             if (line.empty())
@@ -36,12 +36,7 @@ public:
             if (state == 0)
             {
                 state += 1;
-                vector<string> tokens = Utils::split(line, ",");
-                for (auto &token : tokens)
-                {
-                    auto token2 = Utils::trim_copy(token);
-                    _towels.push_back(token2);
-                }
+                _towels = move(Utils::split(line, ", "));
             }
             else
             {
@@ -56,7 +51,7 @@ public:
 
     bool canCreatePattern(
         string pattern,
-        std::vector<std::string> &towels,
+        vector<string> &towels,
         Dict<string, int> &dp)
     {
         if (pattern.empty())
@@ -100,10 +95,10 @@ public:
         printf("Count %d\n", count);
     }
 
-    uint64_t canCreatePattern2(
+    u64 canCreatePattern2(
         string pattern,
-        std::vector<std::string> &towels,
-        Dict<string, uint64_t> &dp)
+        vector<string> &towels,
+        Dict<string, u64> &dp)
     {
         if (pattern.empty())
         {
@@ -114,7 +109,7 @@ public:
             return dp[pattern];
         }
 
-        uint64_t ways = 0;
+        u64 ways = 0;
         for (int i = 0; (int)i < _towels.size(); i++)
         {
             auto towel = _towels[i];
@@ -122,12 +117,13 @@ public:
             {
                 continue;
             }
-            else if (pattern == towel) {
+            else if (pattern == towel)
+            {
                 ways += 1;
                 continue;
             }
 
-            uint64_t result = canCreatePattern2(pattern.substr(towel.size()), towels, dp);
+            u64 result = canCreatePattern2(pattern.substr(towel.size()), towels, dp);
             ways += result;
         }
 
@@ -137,8 +133,8 @@ public:
 
     void part2()
     {
-        Dict<string, uint64_t> dp;
-        uint64_t count = 0;
+        Dict<string, u64> dp;
+        u64 count = 0;
         for (auto pattern : _patterns)
         {
             count += canCreatePattern2(pattern, _towels, dp);
@@ -152,7 +148,14 @@ public:
         bool readTest = false;
         ReadInput(readTest);
         // part1(); // test(6), real(206)
-        part2(); // test(16), real(?)
-        // 622121814629343
+        part2(); // test(16), real(622121814629343)
     }
 };
+
+// Learnings:
+// Part2 should have been simple, but I got confused on changing the cache for the
+// DP. I really only needed an integer to count the number of ways of constructing
+// the substring but I was trying to construct the full pattern/sequence
+// Wasted a bunch of time with that.
+// Again, integer overflow messed up my first attempt at part2. I guess I shouldn't
+// be surprised the number of combinations blows up like crazy...

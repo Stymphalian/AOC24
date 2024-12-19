@@ -109,7 +109,7 @@ public:
 
             if (line.starts_with("Program: "))
             {
-                vector<string> tokens = Utils::split(line.substr(9), ", ");
+                vector<string> tokens = Utils::splitOld(line.substr(9), ", ");
                 M_Assert(tokens.size() % 2 == 0, "Expected even number of tokens");
                 for (int i = 0; i < tokens.size(); i += 2)
                 {

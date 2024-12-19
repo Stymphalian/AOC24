@@ -53,6 +53,13 @@ void __M_Assert(const char *expr_str, bool expr, const char *file, int line, con
     }
 }
 
+using i64 = int64_t;
+using i32 = int32_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+using f32 = float;
+using f64 = double;
+
 template <typename T>
 using List = std::vector<T>;
 
@@ -68,7 +75,6 @@ template <
     class Hash = std::hash<Key>,
     class KeyEqual = std::equal_to<Key>>
 using Set = std::unordered_set<Key, Hash, KeyEqual>;
-
 
 // struct NodeHashKeyExample
 // {
@@ -249,7 +255,57 @@ namespace Utils
         }
     }
 
-    std::vector<std::string> split(const std::string &s, const std::string &delimiter)
+    bool startsWith(const std::string &s, const std::string &prefix, size_t offset = 0)
+    {
+        if (s.length() < prefix.length())
+        {
+            return false;
+        }
+
+        size_t i = offset;
+        size_t j = 0;
+        while (i < s.length() && j < prefix.length())
+        {
+            if (s[i] != prefix[j])
+            {
+                return false;
+            }
+            i++;
+            j++;
+        }
+        return true;
+    }
+
+    // TODO: Need to add more testing for this split, but most basic cases should work
+    std::vector<std::string> split(const std::string &s, const std::string &target)
+    {
+        std::vector<std::string> tokens;
+        size_t start = 0;
+        size_t end = 0;
+        for (size_t i = 0; i < s.length(); i++)
+        {
+            if (Utils::startsWith(s, target, (size_t)i))
+            {
+                if (end != start)
+                {
+                    tokens.push_back(s.substr(start, end - start));
+                }
+                start = i + target.length();
+                end = i + target.length();
+                i += target.length() - 1;
+                continue;
+            }
+            end = i + 1;
+        }
+
+        if (end != start)
+        {
+            tokens.push_back(s.substr(start, end - start));
+        }
+        return tokens;
+    }
+
+    std::vector<std::string> splitOld(const std::string &s, const std::string &delimiter)
     {
         std::vector<std::string> tokens;
         int start = 0;

@@ -32,7 +32,7 @@ public:
         while (std::getline(file, line))
         {
             Utils::trim(line);
-            std::vector<string> tokens = Utils::split(line, ",");
+            std::vector<string> tokens = Utils::splitOld(line, ",");
             assert(tokens.size() == 2);
             _positions.push_back(glm::ivec2(std::stoi(tokens[0]), std::stoi(tokens[1])));
         }
