@@ -155,15 +155,25 @@ namespace Utils
         };
 
         iterator begin() { return iterator(0, _start); }
-        iterator end() { return iterator(5, _start); }
+        iterator end() { return iterator(4, _start); }
     };
 
-    CardinalDirectionIterator forEachDir(glm::ivec2 pos)
+    std::vector<glm::ivec2> forEachDir(glm::ivec2 pos)
+    {
+        return {
+            pos + VRIGHT,
+            pos + VDOWN,
+            pos + VLEFT,
+            pos + VUP,
+        };
+    }
+
+    CardinalDirectionIterator forEachDir3(glm::ivec2 pos)
     {
         return CardinalDirectionIterator(pos);
     }
 
-    CardinalDirectionIterator forEachDir()
+    CardinalDirectionIterator forEachDir3()
     {
         return CardinalDirectionIterator(glm::ivec2(0, 0));
     }
