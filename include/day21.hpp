@@ -77,78 +77,6 @@ public:
     // <  v  >
     using KeyPosMap = unordered_map<char, glm::ivec2>;
 
-    string solveGeneral(string code, KeyPosMap &keymap, vector<vector<char>> &pad)
-    {
-        stringstream result;
-        glm::ivec2 current = keymap['A'];
-        glm::ivec2 bad = keymap['_'];
-        // assert(keymap[current.y][current.x] == 'A');
-
-        for (char c : code)
-        {
-            glm::ivec2 end = keymap[c];
-            glm::ivec2 diff = (end - current);
-            int xoff = Utils::sign(diff.x);
-            int yoff = Utils::sign(diff.y);
-            char xsymbol = diff.x > 0 ? '>' : '<';
-            char ysymbol = diff.y > 0 ? 'v' : '^';
-
-            if (current.y == bad.y && end.x == bad.x)
-            {
-                // move vertical first, then horizontal
-                for (int y = 0; y < abs(diff.y); y++)
-                {
-                    current.y += yoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << ysymbol;
-                }
-                for (int x = 0; x < abs(diff.x); x++)
-                {
-                    current.x += xoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << xsymbol;
-                }
-            }
-            else if (current.x == bad.x && end.y == bad.y)
-            {
-                // move vertical first, then horizontal
-                for (int x = 0; x < abs(diff.x); x++)
-                {
-                    current.x += xoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << xsymbol;
-                }
-                for (int y = 0; y < abs(diff.y); y++)
-                {
-                    current.y += yoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << ysymbol;
-                }
-            }
-            else
-            {
-                // move vertical first, then horizontal
-                for (int x = 0; x < abs(diff.x); x++)
-                {
-                    current.x += xoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << xsymbol;
-                }
-                for (int y = 0; y < abs(diff.y); y++)
-                {
-                    current.y += yoff;
-                    M_Assert(current != bad && Utils::InRange(current, pad), "Entering a bad space");
-                    result << ysymbol;
-                }
-            }
-
-            result << 'A';
-            current = end;
-        }
-
-        return result.str();
-    }
-
     inline string vecToStr(vector<char> &vs)
     {
         return std::move(std::string(vs.begin(), vs.end()));
@@ -321,11 +249,10 @@ public:
         std::cout << "Count: " << count << std::endl;
     }
 
-    uint64_t solve2(string code, KeyPosMap &padMap, string prefix, int depth, Dict<Key, uint64_t, Key, Key> &dp)
+    uint64_t solve2(string code, KeyPosMap &padMap, int depth, Dict<Key, uint64_t, Key, Key> &dp)
     {
-        // std::cout << prefix << depth << ":" << code << std::endl;
         Key key = {code, depth};
-        if (dp.find(key) != dp.end())
+        if (dp.contains(key))
         {
             return dp[key];
         }
@@ -339,11 +266,10 @@ public:
         uint64_t bestLen = std::numeric_limits<u64>::max();
         for (auto perm : perms)
         {
-            // std::cout << prefix << "Perm: " << perm << std::endl;
             uint64_t currentStringLen = 0;
             for (auto token : Utils::split(perm, " "))
             {
-                currentStringLen += solve2(token, _dpad_map, prefix + " ", depth - 1, dp);
+                currentStringLen += solve2(token, _dpad_map, depth - 1, dp);
             }
             if (currentStringLen < bestLen)
             {
@@ -360,7 +286,7 @@ public:
         for (auto code : _codes)
         {
             dp.clear();
-            auto final = solve2(code, _keypad_map, "", 26, dp);
+            auto final = solve2(code, _keypad_map, 26, dp);
             std::cout << code << std::endl;
             std::cout << "Final: " << final << std::endl;
             std::cout << "Number From Code: " << getNumberFromCode(code) << std::endl;
@@ -375,7 +301,7 @@ public:
     {
         bool readTest = false;
         ReadInput(readTest);
-        part1(); // real(157892), test(126384), wrong(161468)
+        // part1(); // real(157892), test(126384), wrong(161468)
         part2(); // wrong(79198252742684), real(197015606336332)
     }
 };
