@@ -507,4 +507,22 @@ namespace Utils
     {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
+
+    template <typename T>
+    T gcd(T a, T b)
+    {
+        while (b != 0)
+        {
+            T t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    template <typename T>
+    T lcm(T a, T b)
+    {
+        return abs(a) * (abs(b) / gcd(a, b));
+    }
 };

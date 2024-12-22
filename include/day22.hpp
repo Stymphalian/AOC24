@@ -30,8 +30,8 @@ public:
         }
         file.close();
 
-        Utils::PrintVector(_secrets);
-        std::cout << std::endl;
+        // Utils::PrintVector(_secrets);
+        // std::cout << std::endl;
     }
 
     inline u64 mix(u64 a, u64 b)
@@ -42,14 +42,14 @@ public:
     {
         return num % 16777216;
     }
-    u64 rng(u64 secret)
+    inline u64 rng(u64 secret)
     {
         secret = prune(mix(secret, secret * 64));
         secret = prune(mix(secret, u64(secret / 32)));
         secret = prune(mix(secret, secret * 2048));
         return secret;
     }
-    int price(u64 secret)
+    inline int price(u64 secret)
     {
         return (int)secret % 10;
     }
@@ -82,6 +82,7 @@ public:
         int price;
         int change;
         glm::ivec4 sequence;
+        int sequence_base19 = 0;
 
         bool operator()(const Record &l, const Record &r)
         {
@@ -91,7 +92,6 @@ public:
 
     void PrintSecretsGrid(vector<vector<Record>> &grid)
     {
-
         ofstream file("output.txt");
         for (int i = 0; i < grid.size(); i++)
         {
@@ -105,13 +105,13 @@ public:
                 file << " (";
                 file << record.change;
                 file << ") [";
-                file << record.sequence[0];
-                file << " ";
-                file << record.sequence[1];
-                file << " ";
-                file << record.sequence[2];
-                file << " ";
-                file << record.sequence[3];
+                // file << record.sequence[0];
+                // file << " ";
+                // file << record.sequence[1];
+                // file << " ";
+                // file << record.sequence[2];
+                // file << " ";
+                // file << record.sequence[3];
                 file << "]";
                 file << std::endl;
 
@@ -122,79 +122,65 @@ public:
         }
     }
 
-    int priceForSequence(vector<vector<Record>> &grid, int monkey, glm::ivec4 target)
+
+    // Learning:
+    // https://github.com/UnicycleBloke/aoc2024/blob/main/day22/solution.cpp
+    void part2Optimal()
     {
 
-        int bestPrice = 0;
-        for (int i = 4; i < grid[monkey].size(); i++)
+        int num_iters = 2000;
+
+        const int BASE_19_CAP = 19 * 19 * 19 * 19;
+        const int BASE_19 = 19;
+        std::array<int, BASE_19_CAP> seen;
+        std::array<int, BASE_19_CAP> prices;
+        for (int i = 0; i < _secrets.size(); i++)
         {
-            if (grid[monkey][i].sequence == target)
+            const int monkey = _secrets[i];
+
+            u64 secret = _secrets[i];
+            Record prev = {secret, price(secret), 0, {0, 0, 0, 0}, 0};
+            Record current;
+            for (int j = 1; j <= num_iters; j++)
             {
-                if (grid[monkey][i].price > bestPrice)
-                {
-                    bestPrice = grid[monkey][i].price;
+                secret = rng(secret);
+
+                int currentPrice = price(secret);
+                int change = currentPrice - prev.price;
+                current = {
+                    secret,
+                    currentPrice,
+                    change,
+                    {0, 0, 0, 0},
+                    ((prev.sequence_base19*BASE_19) + (change + 9)) % (BASE_19_CAP)
+                };
+                if (j >= 4 && seen[current.sequence_base19] != monkey) {
+                    seen[current.sequence_base19] = monkey;
+                    prices[current.sequence_base19] += current.price;
                 }
-            }
+                prev = current;
+            };
         }
-        return bestPrice;
-    }
 
-    u64 solveInner(vector<vector<Record>> &grid, int monkey)
-    {
-        return 0;
-    }
-    u64 solve(vector<vector<Record>> &grid, int monkey)
-    {
-        return 0;
-        // if (monkey >= grid.size()) {
-        //     return 0;
-        // }
-
-        // u64 secret = grid[monkey][0].secret;
-        // priority_queue<Record, vector<Record>, Record> pq;
-
-        // for(int i = 4; i < grid[monkey].size(); i++) {
-        //     pq.push(grid[monkey][i]);
-        // }
-
-        // int best = 0;
-        // while(!pq.empty()) {
-        //     Record record = pq.top();
-        //     pq.pop();
-
-        //     int bananas = record.price;
-        //     int children = solveInner(grid, monkey + 1);
-
-        //     if (bananas + children > best) {
-        //         best = bananas + children;
-        //     }
-        // }
-
-        // return best;
+        int maxBananas = *std::max_element(prices.begin(), prices.end());
+        std::cout << "Max Bananas: " << maxBananas << std::endl;
     }
 
     void part2()
     {
-        int num_iters = 2001;
-        vector<vector<Record>> secretsGrid;
+
+        int num_iters = 2000;
+
+        Set<glm::ivec4> seen;
+        Dict<glm::ivec4, int> prices;
         for (int i = 0; i < _secrets.size(); i++)
         {
-            vector<Record> temp;
-            temp.reserve(num_iters);
-            secretsGrid.push_back(std::move(temp));
-        }
-
-        Dict<glm::ivec4, bool> uniqueSequences;
-
-        u64 prevSecret = 0;
-        for (int i = 0; i < _secrets.size(); i++)
-        {
+            seen.clear();
+            
             u64 secret = _secrets[i];
             Record prev = {secret, price(secret), 0, {0, 0, 0, 0}};
-            secretsGrid[i].push_back(prev);
-
             Record current;
-            for (int j = 1; j < num_iters; j++)
+            for (int j = 1; j <= num_iters; j++)
             {
                 secret = rng(secret);
 
@@ -206,50 +192,24 @@ public:
                     change,
                     {prev.sequence[1], prev.sequence[2], prev.sequence[3], change}};
 
-                if (j >= 4)
-                {
-                    uniqueSequences.insert({current.sequence, true});
+                if (j >=4 && !seen.contains(current.sequence)) {
+                    seen.insert(current.sequence);
+                    prices[current.sequence] += current.price;
                 }
-                secretsGrid[i].push_back(current);
                 prev = current;
             };
         }
-        // PrintSecretsGrid(secretsGrid);
 
-        Dict<int, Dict<glm::ivec4, int>> cache;
-        for (int monkey = 0; monkey < (int)_secrets.size(); monkey++)
+        int maxBananas = 0;
+        for (auto [seq, bananaCount] : prices)
         {
-            cache[monkey] = Dict<glm::ivec4, int>();
-
-            for (int i = 4; i < secretsGrid[monkey].size(); i++)
+            if (bananaCount > maxBananas)
             {
-                Record record = secretsGrid[monkey][i];
-                if (!cache[monkey].contains(record.sequence))
-                {
-                    cache[monkey][record.sequence] = record.price;
-                }
+                maxBananas = bananaCount;
             }
         }
 
-        int best = 0;
-        for (auto seq : uniqueSequences)
-        {
-            int bananaCount = 0;
-            for (int monkey = 0; monkey < (int)_secrets.size(); monkey++)
-            {
-                if (cache[monkey].contains(seq.first))
-                {
-                    bananaCount += cache[monkey][seq.first];
-                }
-            }
-
-            if (bananaCount > best)
-            {
-                best = bananaCount;
-            }
-        }
-
-        std::cout << "Answer: " << best << std::endl;
+        std::cout << "Max Bananas: " << maxBananas << std::endl;
     }
 
     void Run()
@@ -257,6 +217,6 @@ public:
         bool readTest = false;
         ReadInput(readTest);
         // part1();
-        part2(); //fail(1722)
+        part2(); //fail(1722), real(1717)
     }
 };
