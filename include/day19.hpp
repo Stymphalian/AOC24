@@ -36,7 +36,7 @@ public:
             if (state == 0)
             {
                 state += 1;
-                _towels = std::move(Utils::split(line, ", "));
+                _towels = Utils::split(line, ", ");
             }
             else
             {
@@ -63,7 +63,7 @@ public:
             return dp[pattern];
         }
 
-        for (int i = 0; (int)i < _towels.size(); i++)
+        for (int i = 0; i < (int) _towels.size(); i++)
         {
             auto towel = _towels[i];
             if (!pattern.starts_with(towel))
@@ -110,7 +110,7 @@ public:
         }
 
         u64 ways = 0;
-        for (int i = 0; (int)i < _towels.size(); i++)
+        for (int i = 0; i < (int) _towels.size(); i++)
         {
             auto towel = _towels[i];
             if (!pattern.starts_with(towel))

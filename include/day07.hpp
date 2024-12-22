@@ -10,7 +10,7 @@ public:
         vector<int64_t> nums;
 
         bool valid(int64_t last, int start) {
-            if (start >= nums.size()) {
+            if (start >= (int) nums.size()) {
                 return last == test_value;
             }
             int64_t num1 = nums[start];
@@ -28,7 +28,7 @@ public:
         }
 
         bool valid2(int64_t last, int start) {
-            if (start >= nums.size()) {
+            if (start >= (int) nums.size()) {
                 return last == test_value;
             }
             int64_t num1 = nums[start];

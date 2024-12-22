@@ -34,7 +34,7 @@ public:
             Utils::trim(line);
 
             vector<int> row;
-            for(int i = 0; i < line.length(); i++) {
+            for(int i = 0; i < (int) line.length(); i++) {
                 if (line[i] == '.') {
                     row.push_back(-1);
                     continue;
@@ -88,7 +88,7 @@ public:
                 continue;
             }
 
-            for (int i = 0; i < dirs.size(); i++) {
+            for (int i = 0; i < (int) dirs.size(); i++) {
                 glm::ivec2 dir = dirs[i];
                 glm::ivec2 next = current + dir;
                 if (Utils::InRange(next, _num_cols, _num_rows)) {
@@ -106,7 +106,7 @@ public:
     void part1()
     {
         int score = 0;
-        for(int i = 0; i < _starts.size(); i++) {
+        for(int i = 0; i < (int) _starts.size(); i++) {
             glm::ivec2 start = _starts[i];
             int count = traverse(start);
             score += count;
@@ -138,7 +138,7 @@ public:
                 continue;
             }
 
-            for (int i = 0; i < dirs.size(); i++) {
+            for (int i = 0; i < (int) dirs.size(); i++) {
                 glm::ivec2 dir = dirs[i];
                 glm::ivec2 next = current + dir;
                 if (Utils::InRange(next, _num_cols, _num_rows)) {
@@ -156,7 +156,7 @@ public:
     void part2()
     {
         int score = 0;
-        for(int i = 0; i < _starts.size(); i++) {
+        for(int i = 0; i < (int) _starts.size(); i++) {
             glm::ivec2 start = _starts[i];
             int count = traverse2(start);
             score += count;

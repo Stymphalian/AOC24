@@ -247,7 +247,7 @@ public:
 
     void printVector(std::vector<int> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (int i = 0; i < (int) a.size(); i++)
         {
             printf("%d ", a[i]);
         }
@@ -272,7 +272,7 @@ public:
             std::vector<int> after = before;
             sort(after, 0, (int)after.size() - 1);
 
-            for (int j = 0; j < after.size() - 1; j++)
+            for (int j = 0; j < (int) after.size() - 1; j++)
             {
                 if (after[j] > after[j + 1])
                 {
@@ -295,7 +295,7 @@ public:
         sort(a1, 0, (int)a1.size() - 1);
         sort(a2, 0, (int)a2.size() - 1);
         int cumulativeDistance = 0;
-        for (int i = 0; i < a1.size(); i++)
+        for (int i = 0; i < (int) a1.size(); i++)
         {
             printf("%d %d\n", a1[i], a2[i]);
             cumulativeDistance += abs(a1[i] - a2[i]);
@@ -305,12 +305,12 @@ public:
         printf("Cumulative distance: %d\n", cumulativeDistance);
 
         std::unordered_map<int, int> freq;
-        for (int i = 0; i < a2.size(); i++) {
+        for (int i = 0; i < (int) a2.size(); i++) {
             freq[a2[i]] += 1;
         }
 
         int score = 0;
-        for (int i = 0; i < a1.size(); i++) {
+        for (int i = 0; i < (int) a1.size(); i++) {
             score += a1[i] * freq[a1[i]];
         }
         // Answer: 20351745

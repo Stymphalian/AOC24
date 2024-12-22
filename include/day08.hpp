@@ -30,7 +30,7 @@ public:
         {
             Utils::trim(line);
 
-            for (int col = 0; col < line.size(); col++)
+            for (int col = 0; col < (int) line.size(); col++)
             {
                 if (line[col] == '.')
                 {

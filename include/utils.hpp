@@ -144,7 +144,7 @@ namespace Utils
             endPos = cameFrom[endPos];
         }
         path.push_back(startPos);
-        return std::move(path);
+        return path;
     }
 
     // General hash function for std::array
@@ -337,7 +337,7 @@ namespace Utils
     template <typename T>
     void PrintVector(std::vector<T> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << a[i] << " ";
         }
@@ -347,7 +347,7 @@ namespace Utils
     template <typename T>
     void PrintVectorStruct(std::vector<T> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             a[i].Print();
         }
@@ -356,7 +356,7 @@ namespace Utils
 
     void PrintIntVector(std::vector<int> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << a[i] << " ";
         }
@@ -365,7 +365,7 @@ namespace Utils
 
     void PrintVector(std::vector<glm::vec2> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << "(" << a[i].x << "," << a[i].y << ") ";
         }
@@ -374,7 +374,7 @@ namespace Utils
 
     void PrintVector(std::vector<glm::ivec2> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << "(" << a[i].x << "," << a[i].y << ") ";
         }
@@ -382,7 +382,7 @@ namespace Utils
     }
     void PrintVector(std::vector<glm::vec3> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << fmt::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
@@ -391,7 +391,7 @@ namespace Utils
 
     void PrintVector(std::vector<glm::ivec3> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << fmt::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
@@ -426,7 +426,7 @@ namespace Utils
 
     void PrintIntVector2D(std::vector<std::vector<int>> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             PrintIntVector(a[i]);
         }

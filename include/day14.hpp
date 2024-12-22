@@ -245,7 +245,7 @@ public:
     void part2()
     {
         unsigned long long safety = 0;
-        unsigned long long averageSafety = 220696655;
+        // unsigned long long averageSafety = 220696655;
         for (int second = 0; second <= 10403; second++)
         {
             for (auto &robot : _robots)

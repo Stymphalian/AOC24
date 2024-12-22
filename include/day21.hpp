@@ -79,7 +79,7 @@ public:
 
     inline string vecToStr(vector<char> &vs)
     {
-        return std::move(std::string(vs.begin(), vs.end()));
+        return std::string(vs.begin(), vs.end());
     }
 
     vector<string> getPerms(string code, KeyPosMap &keymap)
@@ -92,8 +92,8 @@ public:
         {
             glm::ivec2 end = keymap[c];
             glm::ivec2 diff = (end - current);
-            int xoff = Utils::sign(diff.x);
-            int yoff = Utils::sign(diff.y);
+            // int xoff = Utils::sign(diff.x);
+            // int yoff = Utils::sign(diff.y);
             char xsymbol = diff.x > 0 ? '>' : '<';
             char ysymbol = diff.y > 0 ? 'v' : '^';
 
@@ -162,7 +162,7 @@ public:
                 }
             }
 
-            for (int i = 0; i < stack1.size(); i++)
+            for (int i = 0; i < (int) stack1.size(); i++)
             {
                 stack1[i] += "A ";
             }
@@ -174,7 +174,7 @@ public:
     string getMinString(std::vector<string> &v)
     {
         int min = 0;
-        for (int i = 0; i < v.size(); i++)
+        for (int i = 0; i < (int) v.size(); i++)
         {
             if (v[i].length() < v[min].length())
             {

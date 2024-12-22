@@ -34,7 +34,7 @@ public:
             Utils::trim(line);
 
             vector<char> row;
-            for (int i = 0; i < line.length(); i++)
+            for (int i = 0; i < (int) line.length(); i++)
             {
                 row.push_back(line[i]);
             }
@@ -234,7 +234,7 @@ public:
             int sides = 0;
 
             // count corners
-            for (int i = 0; i < tiles.size(); i++)
+            for (int i = 0; i < (int) tiles.size(); i++)
             {
                 glm::ivec4 nb = getNeighbors(tiles[i], grid);
                 bool right = (nb[0] == 1);
@@ -285,7 +285,7 @@ public:
             // By iterating over every tile considering both sides as "outside"
             // and changing our "turn" condition we can count internal sides
             // aswell.
-            for (int i = 0; i < perimiterLocations.size(); i++)
+            for (int i = 0; i < (int) perimiterLocations.size(); i++)
             {
                 glm::ivec2 start = perimiterLocations[i];
                 vector<Walk> walks = getStartingWalks(start, grid);
@@ -346,7 +346,7 @@ public:
         {
             for (int col = 0; col < _num_cols; col++)
             {
-                char c = _grid[row][col];
+                // char c = _grid[row][col];
                 if (visited[row][col] == 1)
                 {
                     continue;
@@ -381,15 +381,15 @@ public:
                 regions.push_back(region);
             }
         }
-        return std::move(regions);
+        return regions;
     }
 
     void part1()
     {
-        vector<Region> regions = std::move(getRegions());
+        vector<Region> regions = getRegions();
 
         int cost = 0;
-        for (int i = 0; i < regions.size(); i++)
+        for (int i = 0; i < (int) regions.size(); i++)
         {
             cost += regions[i].perimeter * regions[i].area;
         }
@@ -398,10 +398,10 @@ public:
 
     void part2()
     {
-        vector<Region> regions = std::move(getRegions());
+        vector<Region> regions = getRegions();
 
         int cost = 0;
-        for (int i = 0; i < regions.size(); i++)
+        for (int i = 0; i < (int) regions.size(); i++)
         {
             int sides = regions[i].getSides(_grid);
             cost += regions[i].area * sides;

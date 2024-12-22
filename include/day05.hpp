@@ -106,7 +106,7 @@ public:
             }
             return true;
         });
-        return std::move(book);
+        return book;
     }
 
     void part1()
@@ -127,7 +127,7 @@ public:
         int count = 0;
         for(int i = 0; i < (int) _books.size(); i++) {
             if (!isBookValid(_books[i])) {
-                vector<int> fixed = std::move(fixBook(_books[i]));
+                vector<int> fixed = fixBook(_books[i]);
                 if (!isBookValid(fixed)) {
                     Utils::PrintIntVector(_books[i]);
                     Utils::PrintIntVector(fixed);
@@ -142,7 +142,7 @@ public:
     void
     Run(bool readTestData = false)
     {
-        ReadInput(false);
+        ReadInput(readTestData);
         // part1(); // 4609
         part2(); // not right: 5891
     }

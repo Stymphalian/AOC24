@@ -93,7 +93,7 @@ public:
     void PrintSecretsGrid(vector<vector<Record>> &grid)
     {
         ofstream file("output.txt");
-        for (int i = 0; i < grid.size(); i++)
+        for (int i = 0; i < (int) grid.size(); i++)
         {
             file << "Secret: " << grid[i][0].secret << std::endl;
             for (auto record : grid[i])
@@ -134,7 +134,7 @@ public:
         const int BASE_19 = 19;
         std::array<int, BASE_19_CAP> seen;
         std::array<int, BASE_19_CAP> prices;
-        for (int i = 0; i < _secrets.size(); i++)
+        for (int i = 0; i < (int) _secrets.size(); i++)
         {
             const int monkey = _secrets[i];
 
@@ -173,10 +173,10 @@ public:
 
         Set<glm::ivec4> seen;
         Dict<glm::ivec4, int> prices;
-        for (int i = 0; i < _secrets.size(); i++)
+        for (int i = 0; i < (int) _secrets.size(); i++)
         {
             seen.clear();
-            
+
             u64 secret = _secrets[i];
             Record prev = {secret, price(secret), 0, {0, 0, 0, 0}};
             Record current;

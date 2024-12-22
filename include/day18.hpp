@@ -91,7 +91,7 @@ public:
     void PrintGrid(std::vector<glm::ivec2> &path, vector<vector<int>> &grid)
     {
         printf("\n");
-        vector<vector<int>> gridCopy = _grid;
+        vector<vector<int>> gridCopy = grid;
         for (auto pos : path)
         {
             gridCopy[pos.y][pos.x] = 2;
@@ -149,7 +149,7 @@ public:
             return {};
         }
         auto path = Utils::constructPath(_start_pos, _end_pos, cameFrom);
-        return std::move(path);
+        return path;
     }
 
     void part1()
@@ -178,19 +178,19 @@ public:
             glm::ivec2 pos = _positions[i];
             _grid[pos.y][pos.x] = 0;
         }
-        return std::move(path);
+        return path;
     }
 
     int binarySearch(int start, int end)
     {
         if (start >= end)
         {
-            auto path = std::move(eval(start));
+            auto path = eval(start);
             return path.empty() ? start : -1;
         }
 
         int mid = start + (end - start) / 2;
-        auto path = std::move(eval(mid));
+        auto path = eval(mid);
         if (path.empty())
         {
             return binarySearch(start, mid);
