@@ -8,10 +8,6 @@ public:
     Day23() {}
     virtual ~Day23() {}
 
-    // struct Connection {
-    //     string a;
-    //     string b;
-    // };
     Dict<string, Set<string>> _connections;
     Set<string> _computers;
 
@@ -51,91 +47,16 @@ public:
         }
         file.close();
 
-        for (auto &kv : _connections)
-        {
-            string a = kv.first;
-            std::cout << a << ": ";
-            for (auto &b : kv.second)
-            {
-                std::cout << b << " ";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    struct Lan
-    {
-        vector<string> path;
-
-        Lan() {}
-        Lan(vector<string> path) : path(path) {}
-
-        bool operator==(const Lan &other) const
-        {
-            if (path.size() != other.path.size())
-            {
-                return false;
-            }
-            for (size_t i = 0; i < path.size(); i++)
-            {
-                if (path[i] != other.path[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        Lan addPath(string a)
-        {
-            Lan lan = *this;
-            lan.path.push_back(a);
-            std::sort(lan.path.begin(), lan.path.end());
-            return lan;
-        }
-    };
-
-    vector<Lan> findLans2(string a)
-    {
-        vector<Lan> lans;
-
-        Set<string> visited;
-        vector<tuple<string, int, Lan>> stack;
-        stack.push_back({a, 3, Lan({a})});
-        while (!stack.empty())
-        {
-            tuple<string, int, Lan> cs = stack.back();
-            stack.pop_back();
-            string current = get<0>(cs);
-            int depth = get<1>(cs);
-            Lan lan = get<2>(cs);
-
-            if (visited.find(current) != visited.end())
-            {
-                continue;
-            }
-            if (depth == 1)
-            {
-                std::sort(lan.path.begin(), lan.path.end());
-                lans.push_back(lan);
-                continue;
-            }
-            visited.insert(current);
-
-            for (auto n : _connections[current])
-            {
-                if (visited.find(n) != visited.end())
-                {
-                    continue;
-                }
-                if (depth - 1 <= 0)
-                {
-                    continue;
-                }
-                stack.push_back({n, depth - 1, lan.addPath(n)});
-            }
-        }
-        return lans;
+        // for (auto &kv : _connections)
+        // {
+        //     string a = kv.first;
+        //     std::cout << a << ": ";
+        //     for (auto &b : kv.second)
+        //     {
+        //         std::cout << b << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
     }
 
     vector<string> findLans(string a)
@@ -222,120 +143,6 @@ public:
         std::cout << numComputers << std::endl;
     }
 
-    using LanGroup = std::set<string>;
-
-    struct LanGroupCompare
-    {
-        std::size_t operator()(const LanGroup &v) const
-        {
-            std::size_t h = 0;
-            for (auto a : v)
-            {
-                Utils::hash_combine(h, a);
-            }
-            return h;
-        }
-
-        bool operator()(const LanGroup &a, const LanGroup &b) const
-        {
-            return a == b;
-        }
-    };
-
-    bool isFullyConnected(LanGroup as, LanGroup bs)
-    {
-        for (auto &a : as)
-        {
-            for (auto &b : bs)
-            {
-                if (a == b)
-                {
-                    continue;
-                }
-                if (!_connections[a].contains(b))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    tuple<LanGroup, int> joinGroups(LanGroup a, LanGroup b)
-    {
-        LanGroup next;
-        next.insert(a.begin(), a.end());
-        next.insert(b.begin(), b.end());
-        return {next, next.size()};
-    }
-
-    void part2_bad()
-    {
-        int rank = 1;
-        int maxRank = 0;
-        vector<LanGroup> groups;
-        for (auto &c : _computers)
-        {
-            groups.push_back({c});
-            maxRank = std::max(maxRank, (int)_connections[c].size());
-        }
-        std::cout << "Max rank: " << maxRank << std::endl;
-
-        while (rank < maxRank)
-        {
-            Set<LanGroup, LanGroupCompare, LanGroupCompare> nextGroup;
-            printf("Computing rank %d with groups size %d\n", rank, (int)groups.size());
-
-            for (size_t i = 0; i < groups.size(); i++)
-            {
-                for (size_t j = 0; j < groups.size(); j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-
-                    bool connected = isFullyConnected(groups[i], groups[j]);
-                    if (connected)
-                    {
-                        auto [next, nextRank] = joinGroups(groups[i], groups[j]);
-                        if (nextRank >= rank)
-                        {
-                            nextGroup.insert(next);
-                        }
-                    }
-                }
-            }
-            if (nextGroup.size() <= 0)
-            {
-                break;
-            }
-
-            groups.clear();
-            groups.insert(groups.end(), nextGroup.begin(), nextGroup.end());
-            rank += 1;
-        }
-
-        vector<string> printable;
-        for (auto group : groups)
-        {
-            vector<string> as;
-            for (auto a : group)
-            {
-                as.push_back(a);
-            }
-            std::sort(as.begin(), as.end());
-            printable.push_back(Utils::join(as, ","));
-        }
-        std::sort(printable.begin(), printable.end());
-
-        std::cout << "Count: " << printable.size() << std::endl;
-        for (auto lan : printable)
-        {
-            std::cout << lan << std::endl;
-        }
-    }
-
     bool isConnected(string b, Set<string> &lan)
     {
         for (string a : lan)
@@ -348,7 +155,7 @@ public:
         return true;
     }
 
-    vector<string> findPath(string a, int maxRank)
+    vector<string> findPaths(string a, int maxRank)
     {
         Set<string> visited;
         vector<tuple<string, Set<string>>> stack;
@@ -361,7 +168,7 @@ public:
             stack.pop_back();
             visited.insert(b);
 
-            if ((int) lan.size() == maxRank)
+            if ((int)lan.size() == maxRank)
             {
                 allLans.push_back(lan);
                 continue;
@@ -374,7 +181,6 @@ public:
                     continue;
                 }
 
-                // isFullyConnected
                 if (isConnected(n, lan))
                 {
                     Set<string> newLan = lan;
@@ -395,8 +201,19 @@ public:
             std::sort(as.begin(), as.end());
             printable.push_back(Utils::join(as, ","));
         }
-        std::sort(printable.begin(), printable.end());
         return printable;
+    }
+
+    template <class T>
+    string SetToString(T lan)
+    {
+        vector<string> as;
+        for (auto a : lan)
+        {
+            as.push_back(a);
+        }
+        std::sort(as.begin(), as.end());
+        return Utils::join(as, ",");
     }
 
     void part2()
@@ -407,10 +224,10 @@ public:
             maxRank = std::max(maxRank, (int)_connections[c].size());
         }
 
-        std::set<string> uniqueLans;
+        OrdSet<string> uniqueLans;
         for (auto c : _computers)
         {
-            vector<string> paths = findPath(c, maxRank);
+            vector<string> paths = findPaths(c, maxRank);
             uniqueLans.insert(paths.begin(), paths.end());
         }
 
@@ -418,6 +235,73 @@ public:
         {
             std::cout << path << std::endl;
         }
+        std::cout << uniqueLans.size() << std::endl;
+    }
+
+    template <class T>
+    void PrintSet(T &lan)
+    {
+        for (auto a : lan)
+        {
+            std::cout << a << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    OrdSet<string> solve(string a)
+    {
+        OrdSet<string> best;
+
+        OrdSet<string> A;
+        A.insert(_connections[a].begin(), _connections[a].end());
+        A.insert(a);
+
+        for (auto b : _connections[a])
+        {
+            OrdSet<string> B;
+            B.insert(_connections[b].begin(), _connections[b].end());
+            B.insert(b);
+
+            OrdSet<string> common;
+            std::set_intersection(
+                A.begin(), A.end(),
+                B.begin(), B.end(),
+                std::inserter(common, common.end()));
+
+            if (common.size() > best.size())
+            {
+                best = common;
+            }
+        }
+
+        return best;
+    }
+
+    // https://www.reddit.com/r/adventofcode/comments/1hkgj5b/comment/m3eotca/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+    void part3()
+    {
+
+        Dict<OrdSet<string>, int, Utils::OrdSetCompare> lanCounts;
+        for (auto c : _computers)
+        {
+            auto lan = solve(c);
+            lanCounts[lan] += 1;
+        }
+
+        OrdSet<string> best;
+        for (auto [lan, count] : lanCounts)
+        {
+            if (count != (int) lan.size())
+            {
+                // Not a clique
+                continue;
+            }
+            if (lan.size() > best.size())
+            {
+                best = lan;
+            }
+        }
+        std::cout << SetToString(best) << std::endl;
     }
 
     void
@@ -426,6 +310,7 @@ public:
         bool readTest = false;
         ReadInput(readTest);
         // part1(); // real(1194)
-        part2();
+        // part2(); // real(bd,bu,dv,gl,qc,rn,so,tm,wf,yl,ys,ze,zr)
+        part3();
     }
 };

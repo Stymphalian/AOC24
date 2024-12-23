@@ -74,9 +74,21 @@ using Dict = std::unordered_map<Key, T, Hash, KeyEqual>;
 
 template <
     class Key,
+    class T,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>>
+using OrdDict = std::map<Key, T, Hash, KeyEqual>;
+
+template <
+    class Key,
     class Hash = std::hash<Key>,
     class KeyEqual = std::equal_to<Key>>
 using Set = std::unordered_set<Key, Hash, KeyEqual>;
+
+template <
+    class Key,
+    class Compare = std::less<Key>>
+using OrdSet = std::set<Key, Compare>;
 
 // struct NodeHashKeyExample
 // {
@@ -210,6 +222,43 @@ namespace Utils
         bool operator()(const HashKeyExample &a, const HashKeyExample &b) const
         {
             return a.num == b.num && a.blinks == b.blinks;
+        }
+    };
+
+
+    struct SetCompare
+    {
+        std::size_t operator()(const Set<string> &v) const
+        {
+            std::size_t h = 0;
+            for (auto a : v)
+            {
+                Utils::hash_combine(h, a);
+            }
+            return h;
+        }
+
+        bool operator()(const Set<string> &a, const Set<string> &b) const
+        {
+            return a == b;
+        }
+    };
+
+    struct OrdSetCompare
+    {
+        std::size_t operator()(const OrdSet<string> &v) const
+        {
+            std::size_t h = 0;
+            for (auto a : v)
+            {
+                Utils::hash_combine(h, a);
+            }
+            return h;
+        }
+
+        bool operator()(const OrdSet<string> &a, const OrdSet<string> &b) const
+        {
+            return a == b;
         }
     };
 
