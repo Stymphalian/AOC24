@@ -35,7 +35,7 @@ using namespace std;
 // https://adventofcode.com/2024/leaderboard/self
 int main() {
     printf("Advent Of Code 2024\n");
-    Day22 day;
+    Day23 day;
 
     auto start = chrono::system_clock::now();
     day.Run();

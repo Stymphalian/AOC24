@@ -278,6 +278,18 @@ namespace Utils
         return true;
     }
 
+    std::string join(const std::vector<std::string> &lst, const std::string &delim)
+    {
+        std::string ret;
+        for (const auto &s : lst)
+        {
+            if (!ret.empty())
+                ret += delim;
+            ret += s;
+        }
+        return ret;
+    }
+
     // TODO: Need to add more testing for this split, but most basic cases should work
     std::vector<std::string> split(const std::string &s, const std::string &target)
     {

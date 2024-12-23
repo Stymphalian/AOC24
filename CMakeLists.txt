@@ -41,7 +41,7 @@ target_compile_definitions(noin PUBLIC
     GLM_FORCE_XYZW_ONLY
     GLM_ENABLE_EXPERIMENTAL
 )
-add_custom_command(TARGET noin POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   "${CMAKE_CURRENT_LIST_DIR}/res"
-                   "$<TARGET_FILE_DIR:noin>/res")
+# add_custom_command(TARGET noin POST_BUILD
+#                    COMMAND ${CMAKE_COMMAND} -E copy_directory
+#                    "${CMAKE_CURRENT_LIST_DIR}/res"
+#                    "$<TARGET_FILE_DIR:noin>/res")
