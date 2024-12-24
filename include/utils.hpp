@@ -75,9 +75,8 @@ using Dict = std::unordered_map<Key, T, Hash, KeyEqual>;
 template <
     class Key,
     class T,
-    class Hash = std::hash<Key>,
-    class KeyEqual = std::equal_to<Key>>
-using OrdDict = std::map<Key, T, Hash, KeyEqual>;
+    class Compare = std::less<Key>>
+using OrdDict = std::map<Key, T, Compare>;
 
 template <
     class Key,
@@ -89,6 +88,109 @@ template <
     class Key,
     class Compare = std::less<Key>>
 using OrdSet = std::set<Key, Compare>;
+
+class CombinationGenerator
+{
+public:
+    // Constructor to initialize the combination generator with n and k
+    CombinationGenerator(int n, int k) : n(n), k(k)
+    {
+        // Initialize the first combination (0, 1, 2, ..., k-1)
+        combination.resize(k);
+        for (int i = 0; i < k; ++i)
+        {
+            combination[i] = i;
+        }
+    }
+
+    // Iterator class
+    class Iterator
+    {
+    public:
+        Iterator(CombinationGenerator *generator, bool is_end = false)
+            : generator(generator), current(combinationGenerator(generator))
+        {
+            if (is_end)
+            {
+                current = generator->end_combination;
+            }
+        }
+
+        // Dereference operator to get the current combination
+        std::vector<int> &operator*()
+        {
+            return current;
+        }
+
+        // Increment operator to move to the next combination
+        Iterator &operator++()
+        {
+            // Try to find the next valid combination
+            int i = generator->k - 1;
+            while (i >= 0 && current[i] == generator->n - generator->k + i)
+            {
+                --i;
+            }
+
+            if (i >= 0)
+            {
+                ++current[i];
+                for (int j = i + 1; j < generator->k; ++j)
+                {
+                    current[j] = current[j - 1] + 1;
+                }
+            }
+            else
+            {
+                current = generator->end_combination; // End reached
+            }
+
+            return *this;
+        }
+
+        // Equality operator to compare iterators
+        bool operator==(const Iterator &other) const
+        {
+            return current == other.current;
+        }
+
+        // Inequality operator to compare iterators
+        bool operator!=(const Iterator &other) const
+        {
+            return current != other.current;
+        }
+
+    private:
+        CombinationGenerator *generator;
+        std::vector<int> current;
+        std::vector<int> combinationGenerator(CombinationGenerator *gen)
+        {
+            std::vector<int> comb(gen->k);
+            for (int i = 0; i < gen->k; ++i)
+            {
+                comb[i] = gen->combination[i] + 1; // Convert to 1-based index
+            }
+            return comb;
+        }
+    };
+
+    // Method to get the begin iterator
+    Iterator begin()
+    {
+        return Iterator(this);
+    }
+
+    // Method to get the end iterator
+    Iterator end()
+    {
+        return Iterator(this, true);
+    }
+
+private:
+    int n, k;
+    std::vector<int> combination;
+    std::vector<int> end_combination; // For end iterator
+};
 
 // struct NodeHashKeyExample
 // {
@@ -224,7 +326,6 @@ namespace Utils
             return a.num == b.num && a.blinks == b.blinks;
         }
     };
-
 
     struct SetCompare
     {
