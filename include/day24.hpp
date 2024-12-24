@@ -397,8 +397,14 @@ public:
             std::cout << i << " " << targetZ[i] << ": " << gotZ[i] << std::endl;
         }
 
-        // _wireToEquation["ggn"].swap(_wireToEquation["z10"]);
-        // _wireToEquation["jcb"].swap(_wireToEquation["ndw"]);
+        _wireToEquation["ggn"].swap(_wireToEquation["z10"]);
+        _wireToEquation["jcb"].swap(_wireToEquation["ndw"]);
+        _wireToEquation["z32"].swap(_wireToEquation["grm"]);
+        _wireToEquation["z39"].swap(_wireToEquation["twr"]);
+            // "ggn", "z10",
+            // "ndw", "jcb",
+            // "z32", "grm",
+            // "z39", "twr",
 
         OrdSet<string> visited;
         OrdSet<string> search;
@@ -436,15 +442,15 @@ public:
         // z32, grm
         // z39, twr
 
-        std::vector<string> sorted = {
-            "ggn", "z10",
-            "ndw", "jcb",
-            "z32", "grm",
-            "z39", "twr",
-        };
-        std::sort(sorted.begin(), sorted.end());
-        Utils::PrintVector(sorted);
-        std::cout << Utils::join(sorted, ",")<< std::endl;
+        // std::vector<string> sorted = {
+        //     "ggn", "z10",
+        //     "ndw", "jcb",
+        //     "z32", "grm",
+        //     "z39", "twr",
+        // };
+        // std::sort(sorted.begin(), sorted.end());
+        // Utils::PrintVector(sorted);
+        // std::cout << Utils::join(sorted, ",")<< std::endl;
 
         std::bitset<64> gotZFinal = computeZ();
         std::cout << "Got Z: " << gotZFinal.to_ullong() << endl;
