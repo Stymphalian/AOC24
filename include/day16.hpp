@@ -148,7 +148,7 @@ public:
     int calculateScore(vector<Position> path)
     {
         int score = 0;
-        for (int i = 1; i < path.size(); i++)
+        for (int i = 1; i < (int) path.size(); i++)
         {
             Position prev = path[i - 1];
             Position current = path[i];
@@ -177,10 +177,10 @@ public:
             for (int j = 0; j < _num_cols; j++)
             {
                 glm::ivec2 pos = glm::ivec2(j, i);
-                dist[{pos, RIGHT}] = INT_MAX;
-                dist[{pos, DOWN}] = INT_MAX;
-                dist[{pos, LEFT}] = INT_MAX;
-                dist[{pos, UP}] = INT_MAX;
+                dist[Position{pos, RIGHT}] = INT_MAX;
+                dist[Position{pos, DOWN}] = INT_MAX;
+                dist[Position{pos, LEFT}] = INT_MAX;
+                dist[Position{pos, UP}] = INT_MAX;
             }
         }
         Position startPosition = {_start_pos, RIGHT};
@@ -188,10 +188,10 @@ public:
         dist[startPosition] = 0;
 
         Position current;
-        int iterCount = 0;
+        // int iterCount = 0;
         while (!open.empty())
         {
-            iterCount += 1;
+            // iterCount += 1;
             current = open.top();
             if (current.pos == _end_pos)
             {
@@ -239,9 +239,9 @@ public:
 
     void PrintGrid(glm::ivec2 current)
     {
-        for (int y = 0; y < _grid.size(); ++y)
+        for (int y = 0; y < (int) _grid.size(); ++y)
         {
-            for (int x = 0; x < _grid[y].size(); ++x)
+            for (int x = 0; x < (int) _grid[y].size(); ++x)
             {
                 if (glm::ivec2(x, y) == current)
                 {
@@ -281,9 +281,9 @@ public:
         std::unordered_map<SeenNode, int, SeenNode, SeenNode> cost;
         std::vector<tuple<int, vector<glm::ivec2>>> all_paths;
 
-        for (int row = 0; row < _grid.size(); ++row)
+        for (int row = 0; row < (int) _grid.size(); ++row)
         {
-            for (int col = 0; col < _grid[row].size(); ++col)
+            for (int col = 0; col < (int) _grid[row].size(); ++col)
             {
                 if (_grid[row][col] == '.')
                 {
@@ -374,9 +374,9 @@ public:
         std::unordered_map<SeenNode, int, SeenNode, SeenNode> cost;
         std::vector<tuple<int, vector<glm::ivec2>>> all_paths;
 
-        for (int row = 0; row < _grid.size(); ++row)
+        for (int row = 0; row < (int) _grid.size(); ++row)
         {
-            for (int col = 0; col < _grid[row].size(); ++col)
+            for (int col = 0; col < (int) _grid[row].size(); ++col)
             {
                 if (_grid[row][col] == '.')
                 {

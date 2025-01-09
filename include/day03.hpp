@@ -42,7 +42,7 @@ public:
     optional<int> isMult(int start)
     {
         int end = start + 3;
-        if (end >= _input.size())
+        if (end >= (int) _input.size())
         {
             return {};
         }
@@ -63,7 +63,7 @@ public:
         for (int i = 0; i < 4; i++)
         {
             int j = i + start;
-            if (j >= _input.size())
+            if (j >= (int) _input.size())
             {
                 return {};
             }
@@ -98,7 +98,7 @@ public:
         int output2;
         int sum = 0;
         std::stringstream buffer;
-        while (i < _input.size())
+        while (i < (int) _input.size())
         {
             char c = _input[i];
 
@@ -147,7 +147,7 @@ public:
     {
         // check for do()
         if (
-            start + 3 <= _input.size() &&
+            start + 3 <= (int) _input.size() &&
             _input[start] == 'd' &&
             _input[start + 1] == 'o' &&
             _input[start + 2] == '(' && 
@@ -157,7 +157,7 @@ public:
             *isDont = false;
             return start + 3;
         } else if (
-            start + 6 <= _input.size() &&
+            start + 6 <= (int) _input.size() &&
             _input[start] == 'd' &&
             _input[start + 1] == 'o' &&
             _input[start + 2] == 'n' &&
@@ -189,7 +189,7 @@ public:
         int enabled = 1;
         int sum = 0;
         std::stringstream buffer;
-        while (i < _input.size())
+        while (i < (int)  _input.size())
         {
             char c = _input[i];
 
@@ -249,7 +249,7 @@ public:
     void
     Run(bool readTestData = false)
     {
-        ReadInput(false);
+        ReadInput(readTestData);
         // part1(); // 191183308
         part2(); // 92082041
     }

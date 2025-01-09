@@ -245,7 +245,7 @@ public:
     void part2()
     {
         unsigned long long safety = 0;
-        unsigned long long averageSafety = 220696655;
+        // unsigned long long averageSafety = 220696655;
         for (int second = 0; second <= 10403; second++)
         {
             for (auto &robot : _robots)
@@ -291,9 +291,9 @@ public:
     void
     Run()
     {
-        bool readTest = false;
+        bool readTest = true;
         ReadInput(readTest);
-        // part1(); //real(225552000)
-        part2(); // real(7371)
+        part1(); //real(225552000)
+        // part2(); // real(7371)
     }
 };

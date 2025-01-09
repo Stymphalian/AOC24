@@ -5,6 +5,9 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/hash.hpp>
 
+// #include <fmt/core.h>
+#include <bitset>
+#include <array>
 #include <vector>
 #include <string>
 #include <regex>
@@ -72,9 +75,123 @@ using Dict = std::unordered_map<Key, T, Hash, KeyEqual>;
 
 template <
     class Key,
+    class T,
+    class Compare = std::less<Key>>
+using OrdDict = std::map<Key, T, Compare>;
+
+template <
+    class Key,
     class Hash = std::hash<Key>,
     class KeyEqual = std::equal_to<Key>>
 using Set = std::unordered_set<Key, Hash, KeyEqual>;
+
+template <
+    class Key,
+    class Compare = std::less<Key>>
+using OrdSet = std::set<Key, Compare>;
+
+class CombinationGenerator
+{
+public:
+    // Constructor to initialize the combination generator with n and k
+    CombinationGenerator(int n, int k) : n(n), k(k)
+    {
+        // Initialize the first combination (0, 1, 2, ..., k-1)
+        combination.resize(k);
+        for (int i = 0; i < k; ++i)
+        {
+            combination[i] = i;
+        }
+    }
+
+    // Iterator class
+    class Iterator
+    {
+    public:
+        Iterator(CombinationGenerator *generator, bool is_end = false)
+            : generator(generator), current(combinationGenerator(generator))
+        {
+            if (is_end)
+            {
+                current = generator->end_combination;
+            }
+        }
+
+        // Dereference operator to get the current combination
+        std::vector<int> &operator*()
+        {
+            return current;
+        }
+
+        // Increment operator to move to the next combination
+        Iterator &operator++()
+        {
+            // Try to find the next valid combination
+            int i = generator->k - 1;
+            while (i >= 0 && current[i] == generator->n - generator->k + i)
+            {
+                --i;
+            }
+
+            if (i >= 0)
+            {
+                ++current[i];
+                for (int j = i + 1; j < generator->k; ++j)
+                {
+                    current[j] = current[j - 1] + 1;
+                }
+            }
+            else
+            {
+                current = generator->end_combination; // End reached
+            }
+
+            return *this;
+        }
+
+        // Equality operator to compare iterators
+        bool operator==(const Iterator &other) const
+        {
+            return current == other.current;
+        }
+
+        // Inequality operator to compare iterators
+        bool operator!=(const Iterator &other) const
+        {
+            return current != other.current;
+        }
+
+    private:
+        CombinationGenerator *generator;
+        std::vector<int> current;
+        std::vector<int> combinationGenerator(CombinationGenerator *gen)
+        {
+            std::vector<int> comb(gen->k);
+            for (int i = 0; i < gen->k; ++i)
+            {
+                comb[i] = gen->combination[i] + 1; // Convert to 1-based index
+            }
+            return comb;
+        }
+    };
+
+    // Method to get the begin iterator
+    Iterator begin()
+    {
+        return Iterator(this);
+    }
+
+    // Method to get the end iterator
+    Iterator end()
+    {
+        return Iterator(this, true);
+    }
+
+private:
+    int n, k;
+    std::vector<int> combination;
+    std::vector<int> end_combination; // For end iterator
+};
 
 // struct NodeHashKeyExample
 // {
@@ -142,7 +259,7 @@ namespace Utils
             endPos = cameFrom[endPos];
         }
         path.push_back(startPos);
-        return std::move(path);
+        return path;
     }
 
     // General hash function for std::array
@@ -211,6 +328,42 @@ namespace Utils
         }
     };
 
+    struct SetCompare
+    {
+        std::size_t operator()(const Set<string> &v) const
+        {
+            std::size_t h = 0;
+            for (auto a : v)
+            {
+                Utils::hash_combine(h, a);
+            }
+            return h;
+        }
+
+        bool operator()(const Set<string> &a, const Set<string> &b) const
+        {
+            return a == b;
+        }
+    };
+
+    struct OrdSetCompare
+    {
+        std::size_t operator()(const OrdSet<string> &v) const
+        {
+            std::size_t h = 0;
+            for (auto a : v)
+            {
+                Utils::hash_combine(h, a);
+            }
+            return h;
+        }
+
+        bool operator()(const OrdSet<string> &a, const OrdSet<string> &b) const
+        {
+            return a == b;
+        }
+    };
+
     void dfs(
         glm::ivec2 start,
         DFS_Grid_CurrentCallback currentCallback)
@@ -276,6 +429,18 @@ namespace Utils
         return true;
     }
 
+    std::string join(const std::vector<std::string> &lst, const std::string &delim)
+    {
+        std::string ret;
+        for (const auto &s : lst)
+        {
+            if (!ret.empty())
+                ret += delim;
+            ret += s;
+        }
+        return ret;
+    }
+
     // TODO: Need to add more testing for this split, but most basic cases should work
     std::vector<std::string> split(const std::string &s, const std::string &target)
     {
@@ -335,7 +500,7 @@ namespace Utils
     template <typename T>
     void PrintVector(std::vector<T> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << a[i] << " ";
         }
@@ -345,7 +510,7 @@ namespace Utils
     template <typename T>
     void PrintVectorStruct(std::vector<T> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             a[i].Print();
         }
@@ -354,7 +519,7 @@ namespace Utils
 
     void PrintIntVector(std::vector<int> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << a[i] << " ";
         }
@@ -363,7 +528,7 @@ namespace Utils
 
     void PrintVector(std::vector<glm::vec2> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << "(" << a[i].x << "," << a[i].y << ") ";
         }
@@ -372,16 +537,15 @@ namespace Utils
 
     void PrintVector(std::vector<glm::ivec2> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << "(" << a[i].x << "," << a[i].y << ") ";
         }
         cout << endl;
     }
-
     void PrintVector(std::vector<glm::vec3> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
@@ -390,7 +554,7 @@ namespace Utils
 
     void PrintVector(std::vector<glm::ivec3> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             cout << std::format("({},{},{}) ", a[i].x, a[i].y, a[i].z);
         }
@@ -425,7 +589,7 @@ namespace Utils
 
     void PrintIntVector2D(std::vector<std::vector<int>> &a)
     {
-        for (int i = 0; i < a.size(); i++)
+        for (size_t i = 0; i < a.size(); i++)
         {
             PrintIntVector(a[i]);
         }
@@ -505,5 +669,23 @@ namespace Utils
     bool InRange(int x, int y, int width, int height)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    template <typename T>
+    T gcd(T a, T b)
+    {
+        while (b != 0)
+        {
+            T t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    template <typename T>
+    T lcm(T a, T b)
+    {
+        return abs(a) * (abs(b) / gcd(a, b));
     }
 };

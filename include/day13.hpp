@@ -31,7 +31,7 @@ public:
         }
 
         std::string line;
-        int state = 0;
+        // int state = 0;
         Machine machine;
         while (std::getline(file, line))
         {

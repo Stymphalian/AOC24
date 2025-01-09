@@ -22,7 +22,7 @@ public:
             {
                 return false;
             }
-            for (int i = 0; i < _program.size(); i++)
+            for (int i = 0; i < (int) _program.size(); i++)
             {
                 if (_program[i] != output[i])
                 {
@@ -111,7 +111,7 @@ public:
             {
                 vector<string> tokens = Utils::splitOld(line.substr(9), ", ");
                 M_Assert(tokens.size() % 2 == 0, "Expected even number of tokens");
-                for (int i = 0; i < tokens.size(); i += 2)
+                for (int i = 0; i < (int) tokens.size(); i += 2)
                 {
                     _orig._program.push_back(std::stoi(tokens[i]));
                     _orig._program.push_back(std::stoi(tokens[i + 1]));
@@ -123,7 +123,7 @@ public:
         printf("Register A: %lld\n", _orig._regA);
         printf("Register B: %lld\n", _orig._regB);
         printf("Register C: %lld\n", _orig._regC);
-        for (int i = 0; i < _orig._instructions.size(); i++)
+        for (int i = 0; i < (int) _orig._instructions.size(); i++)
         {
             printf("%d %d\n", _orig._instructions[i].x, _orig._instructions[i].y);
         }
@@ -157,7 +157,7 @@ public:
         }
     }
 
-    void processADV(int opCode, int64_t operand, State &state)
+    void processADV(int64_t operand, State &state)
     {
         // printf("[%d] ADV %d\n", state.programCounter, operand);
 
@@ -169,19 +169,19 @@ public:
         state._regA = (int64_t)numerator / denom;
         state._pc += 1;
     }
-    void processBXL(int opCode, int64_t operand, State &state)
+    void processBXL(int64_t operand, State &state)
     {
         // printf("[%d] BXL %d\n", state.programCounter, operand);
         state._regB ^= operand;
         state._pc += 1;
     }
-    void processBST(int opCode, int64_t operand, State &state)
+    void processBST(int64_t operand, State &state)
     {
         // printf("[%d] BST %d\n", state.programCounter, operand);
         state._regB = comboOperand(state, operand) % 8;
         state._pc += 1;
     }
-    void processJNZ(int opCode, int64_t operand, State &state)
+    void processJNZ(int64_t operand, State &state)
     {
         // printf("[%d] JNZ %d\n", state.programCounter, operand);
         if (state._regA == 0)
@@ -194,13 +194,13 @@ public:
             // not increment of program counter;
         }
     }
-    void processBXC(int opCode, int64_t operand, State &state)
+    void processBXC(int64_t _, State &state)
     {
         // printf("[%d] BXC %d\n", state.programCounter, operand);
         state._regB = state._regB ^ state._regC;
         state._pc += 1;
     }
-    void processOUT(int opCode, int64_t operand, State &state)
+    void processOUT(int64_t operand, State &state)
     {
         // printf("[%d] OUT %d\n", state.programCounter, operand);
         int output = (int)(comboOperand(state, operand) % 8);
@@ -213,7 +213,7 @@ public:
             return;
         }
     }
-    void processBDV(int opCode, int64_t operand, State &state)
+    void processBDV(int64_t operand, State &state)
     {
         // printf("[%d] BDV %d\n", state.programCounter, operand);
         int64_t numerator = state._regA;
@@ -223,7 +223,7 @@ public:
         state._regB = (int64_t)numerator / denom;
         state._pc += 1;
     }
-    void processCDV(int opCode, int64_t operand, State &state)
+    void processCDV(int64_t operand, State &state)
     {
         // printf("[%d] CDV %d\n", state.programCounter, operand);
         int64_t numerator = state._regA;
@@ -239,28 +239,28 @@ public:
         switch (opCode)
         {
         case 0:
-            processADV(opCode, operand, state);
+            processADV(operand, state);
             break;
         case 1:
-            processBXL(opCode, operand, state);
+            processBXL(operand, state);
             break;
         case 2:
-            processBST(opCode, operand, state);
+            processBST(operand, state);
             break;
         case 3:
-            processJNZ(opCode, operand, state);
+            processJNZ(operand, state);
             break;
         case 4:
-            processBXC(opCode, operand, state);
+            processBXC(operand, state);
             break;
         case 5:
-            processOUT(opCode, operand, state);
+            processOUT(operand, state);
             break;
         case 6:
-            processBDV(opCode, operand, state);
+            processBDV(operand, state);
             break;
         case 7:
-            processCDV(opCode, operand, state);
+            processCDV(operand, state);
             break;
         }
     }
@@ -268,7 +268,7 @@ public:
     void part1()
     {
         State state = _orig;
-        while (state._pc < state._instructions.size())
+        while (state._pc < (int) state._instructions.size())
         {
             glm::ivec2 instruction = state._instructions[state._pc];
             processInstruction(instruction.x, (int64_t)instruction.y, state);

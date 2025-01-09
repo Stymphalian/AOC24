@@ -31,7 +31,7 @@ public:
 
             Report_t report;
             report.reserve(tokens.size());
-            for (int i = 0; i < tokens.size(); i++)
+            for (int i = 0; i < (int) tokens.size(); i++)
             {
                 report.push_back(std::stoi(tokens[i]));
             }
@@ -43,7 +43,7 @@ public:
     void part1()
     {
         int unsafe_report_count = 0;
-        for (int i = 0; i < _reports.size(); i++)
+        for (int i = 0; i < (int) _reports.size(); i++)
         {
             Report_t &report = _reports[i];
             if (!isSafeReport(report))
@@ -75,9 +75,9 @@ public:
         }
 
         int errors = 0;
-        while (prev_index < report.size())
+        while (prev_index < (int) report.size())
         {
-            if (prev_index >= report.size() || next_index >= report.size())
+            if (prev_index >= (int) report.size() || next_index >= (int) report.size())
             {
                 break;
             }
@@ -134,7 +134,7 @@ public:
     void part2()
     {
         int safe_count = 0;
-        for (int i = 0; i < _reports.size(); i++)
+        for (int i = 0; i < (int) _reports.size(); i++)
         {
             Report_t &report = _reports[i];
             if (isSafeReport(report, -1, true))
@@ -148,7 +148,7 @@ public:
     void Run(bool readTestData = false)
     {
         printf("Day 2\n");
-        ReadInput(false);
+        ReadInput(readTestData);
         // part1(); // 236
         part2(); // 308
     }

@@ -182,7 +182,7 @@ public:
     void
     Run(bool readTestData = false)
     {
-        ReadInput(false);
+        ReadInput(readTestData);
         // part1(); // 2406
         part2(); // 1807
     }

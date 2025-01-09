@@ -32,7 +32,7 @@ public:
             int state = MEMORY_STATE;
 
             int id = 0;
-            for (int i = 0; i < line.size(); i++)
+            for (int i = 0; i < (int) line.size(); i++)
             {
                 int digit = line[i] - '0';
                 if (state == MEMORY_STATE)

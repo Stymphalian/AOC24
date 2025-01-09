@@ -41,7 +41,7 @@ public:
 
             vector<int> row;
             row.reserve(line.length());
-            for (int i = 0; i < line.length(); i++)
+            for (int i = 0; i < (int) line.length(); i++)
             {
                 if (line[i] == '#')
                 {
@@ -217,7 +217,6 @@ public:
     void part2()
     {
 
-        int cycle_count = 0;
         glm::ivec2 pos = _start;
         DIR dir = _start_dir;
         glm::ivec2 dir_vec = get_dir_vec(dir);
@@ -410,7 +409,7 @@ public:
     void
     Run(bool readTestData = true)
     {
-        ReadInput(false);
+        ReadInput(readTestData);
         // part1(); // 4939, test(41)
         part2(); // 1434, test (6)
     }

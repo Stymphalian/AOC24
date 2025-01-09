@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <string>
 #include <chrono>
 
 #include "day01.hpp"
@@ -32,12 +33,7 @@ using namespace std;
 
 // https://adventofcode.com/2024
 // https://adventofcode.com/2024/leaderboard/self
-int main(int argc, char** argv) {
-    bool readTestData = false;
-    if (argc >= 2) {
-        argv[1] == "test" ? readTestData = true : readTestData = false;
-    }
-
+int main() {
     printf("Advent Of Code 2024\n");
     Day20 day;
 

@@ -43,7 +43,7 @@ public:
         std::string line;
         int state = 0;
         int rows = 0;
-        int box_id = 0;
+        // int box_id = 0;
         while (std::getline(file, line))
         {
             Utils::trim(line);
@@ -57,7 +57,7 @@ public:
             {
                 std::vector<int> row;
                 int col_count = 0;
-                for (int col = 0; col < line.size(); col++)
+                for (int col = 0; col < (int) line.size(); col++)
                 {
                     if (line[col] == '#')
                     {
@@ -96,7 +96,7 @@ public:
                             row.push_back(SPACE);
                             row.push_back(SPACE);
                             _boxes.push_back(glm::ivec2(col_count, rows));
-                            box_id += 1;
+                            // box_id += 1;
                         }
                         else
                         {
@@ -110,7 +110,7 @@ public:
             }
             else if (state == 1)
             {
-                for (int col = 0; col < line.size(); col++)
+                for (int col = 0; col < (int) line.size(); col++)
                 {
                     if (line[col] == '>')
                     {
@@ -280,7 +280,7 @@ public:
         out << std::endl;
 
         _grid[_robot.y][_robot.x] = SPACE;
-        for (int i = 0; i < _boxes.size(); i++)
+        for (int i = 0; i < (int)_boxes.size(); i++)
         {
             glm::ivec2 box = _boxes[i];
             _grid[box.y][box.x] = SPACE;
@@ -291,7 +291,7 @@ public:
     int calcGPS2()
     {
         int sum = 0;
-        for (int i = 0; i < _boxes.size(); i++)
+        for (int i = 0; i < (int) _boxes.size(); i++)
         {
             glm::ivec2 box = _boxes[i];
             sum += 100 * box.y + box.x;
@@ -421,7 +421,7 @@ public:
     {
         bool bad = false;
         unordered_map<glm::ivec2, int> seen;
-        for (int i = 0; i < _boxes.size(); i++)
+        for (int i = 0; i < (int) _boxes.size(); i++)
         {
             glm::ivec2 pos = _boxes[i];
             glm::ivec2 pos1 = pos + glm::ivec2(1, 0);
@@ -445,7 +445,7 @@ public:
 
     void part2()
     {
-        for (int i = 0; i < _moves.size(); i++)
+        for (int i = 0; i < (int)_moves.size(); i++)
         {
             int move = _moves[i];
             updateGrid2(move);
